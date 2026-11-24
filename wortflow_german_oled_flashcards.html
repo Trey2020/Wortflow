@@ -1,0 +1,4405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#000000" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <title>WortFlow — German OLED Flashcards</title>
+  <style>
+    /* =========================================================================
+       PURE OLED DESIGN SYSTEM · ZERO CDNS · 100% OFFLINE READY
+       ========================================================================= */
+    :root {
+      --bg: #000000;
+      --card: #0d0d10;
+      --elev: #141419;
+      --elev-hi: #1b1b22;
+      --border: #1f1f26;
+      --border-hi: #2e2e3a;
+
+      --text: #f4f5f8;
+      --text-sub: #b6bccb;
+      --text-muted: #767c90;
+
+      /* Semantic Palette */
+      --cyan: #22d3ee;
+      --cyan-bg: rgba(34, 211, 238, 0.13);
+      --cyan-bd: rgba(34, 211, 238, 0.36);
+
+      --rose: #fb7185;
+      --rose-bg: rgba(251, 113, 133, 0.14);
+      --rose-bd: rgba(251, 113, 133, 0.38);
+
+      --emerald: #34d399;
+      --emerald-bg: rgba(52, 211, 153, 0.14);
+      --emerald-bd: rgba(52, 211, 153, 0.38);
+
+      --amber: #fbbf24;
+      --amber-bg: rgba(251, 191, 36, 0.14);
+      --amber-bd: rgba(251, 191, 36, 0.38);
+
+      --violet: #a78bfa;
+      --violet-bg: rgba(167, 139, 250, 0.15);
+      --violet-bd: rgba(167, 139, 250, 0.40);
+
+      --orange: #fb923c;
+      --orange-bg: rgba(251, 146, 60, 0.16);
+      --orange-bd: rgba(251, 146, 60, 0.42);
+
+      --radius-xl: 22px;
+      --radius-lg: 15px;
+      --radius-md: 11px;
+      --radius-sm: 8px;
+      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-sans);
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    button, input, textarea, select {
+      font-family: inherit;
+      color: inherit;
+    }
+
+    button {
+      background: none;
+      border: none;
+      padding: 0;
+      cursor: pointer;
+      touch-action: manipulation;
+    }
+
+    /* =========================================================================
+       APP SHELL (MOBILE-FIRST, CENTERED ON DESKTOP)
+       ========================================================================= */
+    .app-shell {
+      height: 100dvh;
+      width: 100%;
+      max-width: 500px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      background: var(--bg);
+      position: relative;
+      overflow: hidden;
+    }
+
+    @media (min-width: 540px) {
+      .app-shell {
+        border-left: 1px solid #15151b;
+        border-right: 1px solid #15151b;
+      }
+    }
+
+    /* =========================================================================
+       TOP HEADER & 2-ROW COMPACT FILTER BAR
+       ========================================================================= */
+    .app-header {
+      flex-shrink: 0;
+      padding: 10px 14px 9px;
+      background: rgba(0, 0, 0, 0.96);
+      border-bottom: 1px solid var(--border);
+      z-index: 20;
+    }
+
+    .header-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      min-width: 0;
+    }
+
+    .brand-mark {
+      width: 32px;
+      height: 32px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, rgba(34, 211, 238, 0.22), rgba(167, 139, 250, 0.24));
+      border: 1px solid var(--border-hi);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      flex-shrink: 0;
+    }
+
+    .brand-text {
+      min-width: 0;
+    }
+
+    .brand-title {
+      margin: 0;
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+    }
+
+    .header-meta {
+      margin: 2px 0 0;
+      font-size: 11px;
+      color: var(--text-muted);
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .header-meta .streak {
+      color: var(--amber);
+      font-weight: 700;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .hdr-btn {
+      min-height: 36px;
+      min-width: 36px;
+      padding: 0 10px;
+      border-radius: 10px;
+      background: var(--elev);
+      border: 1px solid var(--border);
+      color: var(--text-sub);
+      font-size: 12px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: transform 0.1s ease, border-color 0.15s ease, color 0.15s ease;
+    }
+
+    .hdr-btn:active { transform: scale(0.95); }
+    .hdr-btn:hover { border-color: var(--border-hi); color: var(--text); }
+
+    /* Filter Row 1: CEFR Levels */
+    .filter-row-1 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+      margin-bottom: 6px;
+    }
+
+    .lvl-pill {
+      min-height: 32px;
+      border-radius: 9px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: 11.5px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      transition: transform 0.1s ease, background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+    }
+
+    .lvl-pill:active { transform: scale(0.95); }
+    .lvl-pill .cnt { font-size: 10px; font-weight: 600; opacity: 0.72; }
+
+    .lvl-pill.on-A1 { background: var(--emerald-bg); border-color: var(--emerald-bd); color: var(--emerald); }
+    .lvl-pill.on-A2 { background: var(--cyan-bg); border-color: var(--cyan-bd); color: var(--cyan); }
+    .lvl-pill.on-B1 { background: var(--violet-bg); border-color: var(--violet-bd); color: var(--violet); }
+    .lvl-pill.on-B2 { background: var(--amber-bg); border-color: var(--amber-bd); color: var(--amber); }
+
+    /* Filter Row 2: Deck Mix + Hard Leech Toggle */
+    .filter-row-2 {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    .filter-row-2::-webkit-scrollbar { display: none; }
+
+    .pack-pill {
+      flex: 1 0 auto;
+      min-height: 32px;
+      padding: 0 9px;
+      border-radius: 9px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: 11px;
+      font-weight: 750;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      white-space: nowrap;
+      transition: transform 0.1s ease, background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+    }
+
+    .pack-pill:active { transform: scale(0.95); }
+    .pack-pill.on-vocab { background: rgba(244, 245, 248, 0.11); border-color: rgba(244, 245, 248, 0.30); color: var(--text); }
+    .pack-pill.on-verb_trap { background: var(--amber-bg); border-color: var(--amber-bd); color: var(--amber); }
+    .pack-pill.on-case_practice { background: var(--violet-bg); border-color: var(--violet-bd); color: var(--violet); }
+    .pack-pill.on-hard { background: var(--orange-bg); border-color: var(--orange-bd); color: var(--orange); }
+
+    .progress-track {
+      margin-top: 8px;
+      height: 3px;
+      width: 100%;
+      background: #141419;
+      border-radius: 99px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: 99px;
+      background: linear-gradient(90deg, var(--cyan), var(--violet), var(--emerald));
+      transition: width 0.25s ease;
+    }
+
+    /* =========================================================================
+       PROMPT MIX STRIP (DIRECTLY ABOVE CARD)
+       ========================================================================= */
+    .prompt-strip-wrap {
+      flex-shrink: 0;
+      padding: 8px 14px 4px;
+      background: var(--bg);
+    }
+
+    .prompt-strip {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      padding: 4px;
+      border-radius: 13px;
+      background: var(--card);
+      border: 1px solid var(--border);
+    }
+
+    .pm-pill {
+      min-height: 32px;
+      border-radius: 9px;
+      font-size: 11.5px;
+      font-weight: 800;
+      color: var(--text-muted);
+      background: transparent;
+      border: 1px solid transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      transition: transform 0.1s ease, background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+    }
+
+    .pm-pill:active { transform: scale(0.96); }
+    .pm-pill.on {
+      background: var(--elev-hi);
+      border-color: var(--border-hi);
+      color: var(--text);
+    }
+
+    .pm-pill.on-listen {
+      background: var(--cyan-bg);
+      border-color: var(--cyan-bd);
+      color: var(--cyan);
+    }
+
+    .pm-pill.off-listen {
+      color: #5b6173;
+      text-decoration: line-through;
+      text-decoration-color: rgba(251, 113, 133, 0.55);
+    }
+
+    /* =========================================================================
+       MAIN SCROLLABLE CARD STAGE
+       ========================================================================= */
+    .card-stage {
+      flex: 1;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      padding: 8px 14px 16px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    @keyframes cardIn {
+      0% { opacity: 0; transform: translateY(7px) scale(0.992); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    @keyframes speakPulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(34, 211, 238, 0.52); }
+      50% { box-shadow: 0 0 0 7px rgba(34, 211, 238, 0); }
+    }
+
+    .card {
+      width: 100%;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      padding: 17px;
+      animation: cardIn 0.18s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.78);
+    }
+
+    .card-front {
+      margin: auto 0;
+      min-height: 325px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      cursor: pointer;
+      user-select: none;
+      padding: 18px;
+    }
+
+    .card-front:active { border-color: var(--border-hi); }
+
+    .card-back {
+      display: flex;
+      flex-direction: column;
+      gap: 13px;
+    }
+
+    .card-top-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .badge-row {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      flex-wrap: wrap;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3.5px 9px;
+      border-radius: 99px;
+      font-size: 10.5px;
+      font-weight: 800;
+      letter-spacing: 0.01em;
+      border: 1px solid var(--border);
+      background: var(--elev);
+      color: var(--text-sub);
+    }
+
+    .pill-A1 { background: var(--emerald-bg); border-color: var(--emerald-bd); color: var(--emerald); }
+    .pill-A2 { background: var(--cyan-bg); border-color: var(--cyan-bd); color: var(--cyan); }
+    .pill-B1 { background: var(--violet-bg); border-color: var(--violet-bd); color: var(--violet); }
+    .pill-B2 { background: var(--amber-bg); border-color: var(--amber-bd); color: var(--amber); }
+
+    .pill-cyan { background: var(--cyan-bg); border-color: var(--cyan-bd); color: var(--cyan); }
+    .pill-amber { background: var(--amber-bg); border-color: var(--amber-bd); color: var(--amber); }
+    .pill-violet { background: var(--violet-bg); border-color: var(--violet-bd); color: var(--violet); }
+    .pill-emerald { background: var(--emerald-bg); border-color: var(--emerald-bd); color: var(--emerald); }
+    .pill-rose { background: var(--rose-bg); border-color: var(--rose-bd); color: var(--rose); }
+    .pill-orange { background: var(--orange-bg); border-color: var(--orange-bd); color: var(--orange); }
+
+    .hard-toggle-btn {
+      min-height: 30px;
+      padding: 0 9px;
+      border-radius: 99px;
+      background: var(--elev);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: 11px;
+      font-weight: 800;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: transform 0.1s ease, background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+    }
+
+    .hard-toggle-btn:active { transform: scale(0.94); }
+    .hard-toggle-btn.is-hard {
+      background: var(--orange-bg);
+      border-color: var(--orange-bd);
+      color: var(--orange);
+    }
+
+    /* Front Center Displays */
+    .front-center {
+      margin: 22px 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 18px;
+    }
+
+    .front-kicker {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+    }
+
+    .front-word {
+      margin: 0;
+      font-size: clamp(30px, 8.6vw, 42px);
+      font-weight: 850;
+      letter-spacing: -0.03em;
+      line-height: 1.12;
+      word-break: break-word;
+      color: var(--text);
+    }
+
+    .front-en-word {
+      margin: 0;
+      font-size: clamp(25px, 7.2vw, 34px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1.22;
+      word-break: break-word;
+      color: var(--text);
+    }
+
+    .front-sub-note {
+      margin: 0;
+      font-size: 12px;
+      color: var(--amber);
+      font-weight: 700;
+      padding: 5px 11px;
+      border-radius: 10px;
+      background: var(--amber-bg);
+      border: 1px solid var(--amber-bd);
+    }
+
+    /* Audio-First Front Hero */
+    .listen-hero-btn {
+      width: 96px;
+      height: 96px;
+      border-radius: 28px;
+      background: linear-gradient(145deg, rgba(34, 211, 238, 0.22), rgba(167, 139, 250, 0.14));
+      border: 1.5px solid var(--cyan-bd);
+      color: var(--cyan);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      font-size: 11.5px;
+      font-weight: 800;
+      transition: transform 0.12s ease;
+    }
+
+    .listen-hero-btn:active { transform: scale(0.94); }
+
+    .peek-btn {
+      min-height: 36px;
+      padding: 0 13px;
+      border-radius: 10px;
+      background: var(--elev);
+      border: 1px solid var(--border);
+      color: var(--text-sub);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .peek-word-box {
+      padding: 8px 16px;
+      border-radius: 12px;
+      background: var(--elev);
+      border: 1px solid var(--border-hi);
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--text);
+    }
+
+    /* Case Practice Front */
+    .case-front-wrap {
+      margin: 18px 0;
+      text-align: left;
+      width: 100%;
+    }
+
+    .case-sentence {
+      margin: 10px 0 0;
+      font-size: 21px;
+      font-weight: 750;
+      line-height: 1.46;
+      letter-spacing: -0.015em;
+      color: var(--text);
+    }
+
+    .case-blank {
+      display: inline-block;
+      min-width: 68px;
+      padding: 0 8px;
+      margin: 0 2px;
+      text-align: center;
+      border-bottom: 2.5px solid var(--amber);
+      background: var(--amber-bg);
+      color: var(--amber);
+      border-radius: 6px 6px 2px 2px;
+      font-weight: 850;
+    }
+
+    .case-en-ctx {
+      margin: 12px 0 0;
+      font-size: 13.5px;
+      line-height: 1.45;
+      color: var(--text-muted);
+      font-style: italic;
+    }
+
+    /* Audio Buttons */
+    .audio-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .audio-btn {
+      min-height: 44px;
+      padding: 0 16px;
+      border-radius: 13px;
+      background: var(--elev);
+      border: 1px solid var(--border-hi);
+      color: var(--text);
+      font-size: 13px;
+      font-weight: 750;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      transition: transform 0.1s ease;
+    }
+
+    .audio-btn:active { transform: scale(0.95); }
+    .audio-btn.primary { background: var(--cyan-bg); border-color: var(--cyan-bd); color: var(--cyan); }
+    .audio-btn.slow { padding: 0 13px; color: var(--text-sub); }
+
+    .audio-sq {
+      width: 40px;
+      height: 40px;
+      min-width: 40px;
+      border-radius: 11px;
+      background: var(--elev);
+      border: 1px solid var(--border);
+      color: var(--cyan);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 11px;
+      font-weight: 800;
+      transition: transform 0.1s ease, border-color 0.15s ease;
+    }
+
+    .audio-sq:active { transform: scale(0.93); }
+    .audio-sq.slow-sq { color: var(--text-sub); }
+
+    .speaking-active {
+      animation: speakPulse 1s ease-in-out infinite;
+      border-color: var(--cyan) !important;
+      color: var(--cyan) !important;
+    }
+
+    .tap-hint {
+      text-align: center;
+      font-size: 11.5px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    /* =========================================================================
+       CARD BACK SECTIONS
+       ========================================================================= */
+    .back-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .back-word {
+      margin: 0;
+      font-size: 25px;
+      font-weight: 850;
+      letter-spacing: -0.025em;
+      line-height: 1.18;
+      word-break: break-word;
+    }
+
+    .art-der { color: var(--cyan); }
+    .art-die { color: var(--rose); }
+    .art-das { color: var(--emerald); }
+
+    .back-plural-row {
+      margin-top: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .back-english {
+      margin: 6px 0 0;
+      font-size: 17px;
+      font-weight: 650;
+      color: var(--text-sub);
+      line-height: 1.32;
+    }
+
+    .section-box {
+      background: var(--elev);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 12px 13px;
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+    }
+
+    .valency-box {
+      background: linear-gradient(180deg, rgba(251, 191, 36, 0.07) 0%, var(--elev) 100%);
+      border-color: #2d261a;
+    }
+
+    .valency-box.dat-tint {
+      background: linear-gradient(180deg, rgba(167, 139, 250, 0.08) 0%, var(--elev) 100%);
+      border-color: #2b2440;
+    }
+
+    .case-answer-box {
+      background: linear-gradient(180deg, rgba(52, 211, 153, 0.09) 0%, var(--elev) 100%);
+      border-color: rgba(52, 211, 153, 0.32);
+    }
+
+    .section-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .section-label {
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--text-muted);
+    }
+
+    .valency-callout {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      align-self: flex-start;
+      padding: 6px 11px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 850;
+      border: 1px solid;
+    }
+
+    .trap-note {
+      margin: 0;
+      font-size: 12.5px;
+      line-height: 1.48;
+      color: var(--text-sub);
+      padding: 9px 11px;
+      border-radius: 10px;
+      background: rgba(0, 0, 0, 0.42);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .trap-note strong {
+      color: var(--violet);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      display: block;
+      margin-bottom: 3px;
+    }
+
+    /* Case Practice Answer Sentence */
+    .case-full-de {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 750;
+      line-height: 1.48;
+      color: var(--text);
+    }
+
+    .ans-hl {
+      background: rgba(52, 211, 153, 0.22);
+      color: #6ee7b7;
+      border: 1px solid rgba(52, 211, 153, 0.45);
+      padding: 1px 7px;
+      border-radius: 7px;
+      font-weight: 850;
+    }
+
+    /* Verb Conjugation Strip */
+    .conj-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 6px;
+    }
+
+    .conj-btn {
+      width: 100%;
+      min-height: 46px;
+      padding: 7px 11px;
+      border-radius: 11px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      text-align: left;
+      transition: transform 0.1s ease, border-color 0.15s ease;
+    }
+
+    .conj-btn:active { transform: scale(0.985); }
+    .conj-btn:hover { border-color: var(--border-hi); }
+
+    .conj-kicker {
+      font-size: 9.5px;
+      font-weight: 750;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+    }
+
+    .conj-val {
+      font-size: 14px;
+      font-weight: 750;
+      color: var(--text);
+      margin-top: 2px;
+    }
+
+    .aux-ist { color: var(--emerald); font-weight: 900; }
+    .aux-hat { color: var(--cyan); font-weight: 900; }
+
+    .play-all-btn {
+      width: 100%;
+      min-height: 42px;
+      padding: 0 12px;
+      border-radius: 11px;
+      background: var(--cyan-bg);
+      border: 1px solid var(--cyan-bd);
+      color: var(--cyan);
+      font-size: 12px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      transition: transform 0.1s ease;
+    }
+
+    .play-all-btn:active { transform: scale(0.98); }
+
+    /* Examples + Interactive Preposition Cloze Blanks */
+    .examples-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .ex-controls {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .tiny-pill-btn {
+      min-height: 26px;
+      padding: 0 8px;
+      border-radius: 7px;
+      background: var(--elev);
+      border: 1px solid var(--border);
+      color: var(--text-sub);
+      font-size: 10.5px;
+      font-weight: 750;
+    }
+
+    .tiny-pill-btn.active {
+      background: var(--amber-bg);
+      border-color: var(--amber-bd);
+      color: var(--amber);
+    }
+
+    .tiny-pill-btn.reveal {
+      background: var(--cyan-bg);
+      border-color: var(--cyan-bd);
+      color: var(--cyan);
+    }
+
+    .example-item {
+      background: var(--elev);
+      border: 1px solid var(--border);
+      border-radius: 13px;
+      padding: 11px 12px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .ex-body {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .ex-de {
+      margin: 0;
+      font-size: 14.5px;
+      font-weight: 600;
+      line-height: 1.54;
+      color: var(--text);
+    }
+
+    .ex-en {
+      margin: 5px 0 0;
+      font-size: 12.5px;
+      line-height: 1.4;
+      color: var(--text-muted);
+    }
+
+    .cloze-blank {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 52px;
+      height: 24px;
+      padding: 0 9px;
+      margin: 0 2px;
+      border-radius: 7px;
+      background: var(--amber-bg);
+      border: 1px dashed var(--amber-bd);
+      color: var(--amber);
+      font-size: 12px;
+      font-weight: 850;
+      letter-spacing: 0.08em;
+      vertical-align: baseline;
+      transition: transform 0.1s ease, background 0.15s ease;
+    }
+
+    .cloze-blank:active { transform: scale(0.93); }
+
+    .cloze-revealed {
+      display: inline;
+      padding: 1px 6px;
+      border-radius: 6px;
+      background: rgba(52, 211, 153, 0.18);
+      border: 1px solid rgba(52, 211, 153, 0.36);
+      color: #6ee7b7;
+      font-weight: 800;
+    }
+
+    /* =========================================================================
+       FIXED BOTTOM THUMB-ZONE CONTROLS
+       ========================================================================= */
+    .thumb-footer {
+      flex-shrink: 0;
+      padding: 9px 14px max(12px, env(safe-area-inset-bottom));
+      background: rgba(0, 0, 0, 0.97);
+      border-top: 1px solid var(--border);
+      z-index: 20;
+    }
+
+    .flip-btn {
+      width: 100%;
+      min-height: 52px;
+      border-radius: 15px;
+      background: var(--text);
+      color: #000000;
+      font-size: 15px;
+      font-weight: 850;
+      letter-spacing: -0.01em;
+      transition: transform 0.1s ease;
+    }
+
+    .flip-btn:active { transform: scale(0.985); }
+
+    .srs-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .srs-btn {
+      min-height: 52px;
+      border-radius: 14px;
+      border: 1px solid;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      transition: transform 0.1s ease;
+    }
+
+    .srs-btn:active { transform: scale(0.95); }
+    .srs-btn .s-main { font-size: 14px; font-weight: 850; line-height: 1.1; }
+    .srs-btn .s-sub { font-size: 10.5px; font-weight: 650; opacity: 0.8; }
+
+    .srs-again { background: var(--rose-bg); border-color: var(--rose-bd); color: var(--rose); }
+    .srs-good { background: var(--cyan-bg); border-color: var(--cyan-bd); color: var(--cyan); }
+    .srs-easy { background: var(--emerald-bg); border-color: var(--emerald-bd); color: var(--emerald); }
+
+    .kbd-bar {
+      display: none;
+      margin-top: 7px;
+      text-align: center;
+      font-size: 10.5px;
+      color: #5b6276;
+      font-weight: 600;
+      letter-spacing: 0.01em;
+    }
+
+    @media (min-width: 768px) {
+      .kbd-bar { display: block; }
+    }
+
+    /* =========================================================================
+       EMPTY / SESSION DONE STATES
+       ========================================================================= */
+    .state-card {
+      margin: auto 0;
+      text-align: center;
+      padding: 26px 18px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 13px;
+    }
+
+    .state-icon {
+      width: 54px;
+      height: 54px;
+      border-radius: 17px;
+      background: var(--elev);
+      border: 1px solid var(--border-hi);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--emerald);
+    }
+
+    .state-title { margin: 0; font-size: 19px; font-weight: 850; }
+    .state-desc { margin: 0; font-size: 13px; line-height: 1.5; color: var(--text-muted); max-width: 320px; }
+
+    .stat-pair {
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 9px;
+    }
+
+    .stat-tile {
+      background: var(--elev);
+      border: 1px solid var(--border);
+      border-radius: 13px;
+      padding: 11px;
+    }
+
+    .stat-val { font-size: 21px; font-weight: 850; }
+    .stat-lbl { font-size: 10.5px; color: var(--text-muted); font-weight: 650; margin-top: 2px; }
+
+    .btn-primary-full {
+      width: 100%;
+      min-height: 46px;
+      border-radius: 13px;
+      background: var(--text);
+      color: #000000;
+      font-size: 13.5px;
+      font-weight: 850;
+    }
+
+    .btn-secondary-full {
+      width: 100%;
+      min-height: 44px;
+      border-radius: 13px;
+      background: var(--elev);
+      border: 1px solid var(--border-hi);
+      color: var(--text-sub);
+      font-size: 12.5px;
+      font-weight: 750;
+    }
+
+    /* =========================================================================
+       4-TAB DECK & CUSTOM CARD MANAGER MODAL
+       ========================================================================= */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.86);
+      backdrop-filter: blur(5px);
+      z-index: 40;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+    }
+
+    .modal-backdrop.hidden { display: none; }
+
+    @media (min-width: 540px) {
+      .modal-backdrop { align-items: center; padding: 14px; }
+    }
+
+    .modal-sheet {
+      width: 100%;
+      max-width: 500px;
+      max-height: 92dvh;
+      background: var(--card);
+      border: 1px solid var(--border-hi);
+      border-radius: 22px 22px 0 0;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      animation: cardIn 0.18s ease-out;
+    }
+
+    @media (min-width: 540px) {
+      .modal-sheet { border-radius: 22px; }
+    }
+
+    .modal-header {
+      padding: 14px 16px 11px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .modal-title { margin: 0; font-size: 15.5px; font-weight: 850; }
+    .modal-sub { margin: 2px 0 0; font-size: 11px; color: var(--text-muted); }
+
+    .modal-tabs {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 5px;
+      padding: 10px 14px 8px;
+      border-bottom: 1px solid #16161d;
+    }
+
+    .mtab-btn {
+      min-height: 36px;
+      padding: 0 4px;
+      border-radius: 10px;
+      background: var(--elev);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: 11px;
+      font-weight: 800;
+      text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .mtab-btn.active {
+      background: var(--text);
+      color: #000000;
+      border-color: var(--text);
+    }
+
+    .modal-body {
+      flex: 1;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      padding: 13px 16px 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    /* Form Controls */
+    .form-grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 9px;
+    }
+
+    .form-grid-3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
+    }
+
+    .field-group {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .field-label {
+      font-size: 10.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+    }
+
+    .input-ctrl, .select-ctrl, .textarea-ctrl {
+      width: 100%;
+      padding: 10px 11px;
+      border-radius: 11px;
+      background: #060608;
+      border: 1px solid var(--border-hi);
+      color: var(--text);
+      font-size: 13px;
+      line-height: 1.4;
+    }
+
+    .input-ctrl:focus, .select-ctrl:focus, .textarea-ctrl:focus {
+      outline: none;
+      border-color: var(--cyan);
+    }
+
+    .textarea-ctrl {
+      min-height: 70px;
+      resize: vertical;
+    }
+
+    .textarea-mono {
+      min-height: 135px;
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+    }
+
+    .check-row {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 9px 11px;
+      border-radius: 11px;
+      background: var(--elev);
+      border: 1px solid var(--border);
+      font-size: 12.5px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .check-row input {
+      width: 17px;
+      height: 17px;
+      accent-color: var(--amber);
+    }
+
+    .ex-form-row {
+      background: var(--elev);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+
+    .ex-form-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 10.5px;
+      font-weight: 800;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+
+    /* Browse List */
+    .browse-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .browse-card {
+      background: var(--elev);
+      border: 1px solid var(--border);
+      border-radius: 13px;
+      padding: 11px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .browse-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .browse-word {
+      margin: 4px 0 2px;
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--text);
+      word-break: break-word;
+    }
+
+    .browse-en {
+      margin: 0;
+      font-size: 12px;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .browse-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .sm-act-btn {
+      min-height: 32px;
+      padding: 0 9px;
+      border-radius: 9px;
+      background: var(--card);
+      border: 1px solid var(--border-hi);
+      color: var(--text-sub);
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .sm-act-btn.danger {
+      color: var(--rose);
+      border-color: var(--rose-bd);
+    }
+
+    .sm-act-btn.danger-armed {
+      background: var(--rose-bg);
+      color: var(--rose);
+      border-color: var(--rose);
+    }
+
+    /* Buttons & Utility */
+    .btn-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+    .btn-tone {
+      min-height: 42px;
+      padding: 0 12px;
+      border-radius: 11px;
+      font-size: 12px;
+      font-weight: 800;
+      border: 1px solid;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .btn-cyan { background: var(--cyan-bg); border-color: var(--cyan-bd); color: var(--cyan); }
+    .btn-violet { background: var(--violet-bg); border-color: var(--violet-bd); color: var(--violet); }
+    .btn-emerald { background: var(--emerald-bg); border-color: var(--emerald-bd); color: var(--emerald); }
+    .btn-rose { background: var(--rose-bg); border-color: var(--rose-bd); color: var(--rose); }
+    .btn-amber { background: var(--amber-bg); border-color: var(--amber-bd); color: var(--amber); }
+    .btn-ghost { background: var(--elev); border-color: var(--border-hi); color: var(--text-sub); }
+
+    .file-drop {
+      width: 100%;
+      min-height: 44px;
+      padding: 0 12px;
+      border-radius: 12px;
+      background: var(--elev);
+      border: 1px dashed var(--border-hi);
+      color: var(--text-sub);
+      font-size: 12px;
+      font-weight: 750;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      cursor: pointer;
+    }
+
+    .feedback-msg {
+      padding: 9px 11px;
+      border-radius: 10px;
+      font-size: 12px;
+      font-weight: 650;
+      line-height: 1.4;
+    }
+
+    .feedback-err { background: var(--rose-bg); border: 1px solid var(--rose-bd); color: #fecdd3; }
+    .feedback-ok { background: var(--emerald-bg); border: 1px solid var(--emerald-bd); color: #a7f3d0; }
+
+    details.schema-details {
+      background: var(--elev);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px 12px;
+    }
+
+    details.schema-details summary {
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--cyan);
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .code-block {
+      margin: 10px 0 0;
+      padding: 10px;
+      border-radius: 10px;
+      background: #050507;
+      border: 1px solid var(--border);
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      line-height: 1.45;
+      color: #cbd5e1;
+      overflow-x: auto;
+      max-height: 220px;
+    }
+
+    .kbd-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    .kbd-table td {
+      padding: 7px 4px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .kbd-key {
+      display: inline-block;
+      padding: 2px 7px;
+      border-radius: 6px;
+      background: #060608;
+      border: 1px solid var(--border-hi);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--cyan);
+    }
+
+    /* Toast */
+    .toast-host {
+      position: fixed;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 60;
+      pointer-events: none;
+      width: calc(100% - 28px);
+      max-width: 360px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .toast-pill {
+      padding: 9px 14px;
+      border-radius: 12px;
+      background: #16161e;
+      border: 1px solid var(--border-hi);
+      color: var(--text);
+      font-size: 12px;
+      font-weight: 750;
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.85);
+      animation: cardIn 0.16s ease-out;
+    }
+
+    .toast-pill.ok { border-color: var(--emerald-bd); color: var(--emerald); }
+    .toast-pill.err { border-color: var(--rose-bd); color: var(--rose); }
+    .toast-pill.warn { border-color: var(--amber-bd); color: var(--amber); }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <!-- Toast Container (Zero alert/confirm) -->
+    <div id="toast-host" class="toast-host" aria-live="polite"></div>
+
+    <!-- Compact 2-Row Filter Header -->
+    <header class="app-header">
+      <div class="header-top">
+        <div class="brand">
+          <div class="brand-mark">DE</div>
+          <div class="brand-text">
+            <h1 class="brand-title">WortFlow</h1>
+            <p id="header-meta" class="header-meta">Loading deck…</p>
+          </div>
+        </div>
+        <div class="header-actions">
+          <button type="button" class="hdr-btn" onclick="shuffleQueue()" title="Shuffle active queue" aria-label="Shuffle active queue">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/>
+            </svg>
+          </button>
+          <button type="button" class="hdr-btn" onclick="openModal('add')" aria-label="Open Deck Manager">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 3l9 4.5-9 4.5-9-4.5L12 3z"/><path d="M3 12l9 4.5 9-4.5"/><path d="M3 16.5l9 4.5 9-4.5"/>
+            </svg>
+            <span id="deck-btn-label">Deck</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Row 1: CEFR Level Pills -->
+      <div class="filter-row-1" role="group" aria-label="Filter by CEFR level">
+        <button id="lvl-A1" type="button" class="lvl-pill" onclick="toggleLevel('A1')"></button>
+        <button id="lvl-A2" type="button" class="lvl-pill" onclick="toggleLevel('A2')"></button>
+        <button id="lvl-B1" type="button" class="lvl-pill" onclick="toggleLevel('B1')"></button>
+        <button id="lvl-B2" type="button" class="lvl-pill" onclick="toggleLevel('B2')"></button>
+      </div>
+
+      <!-- Row 2: Unified Deck Mix + Auto-Leech Hard Pill -->
+      <div class="filter-row-2" role="group" aria-label="Filter by card pack">
+        <button id="pack-vocab" type="button" class="pack-pill" onclick="togglePack('vocab')"></button>
+        <button id="pack-verb_trap" type="button" class="pack-pill" onclick="togglePack('verb_trap')"></button>
+        <button id="pack-case_practice" type="button" class="pack-pill" onclick="togglePack('case_practice')"></button>
+        <button id="pack-hard" type="button" class="pack-pill" onclick="toggleHardFilter()"></button>
+      </div>
+
+      <div class="progress-track">
+        <div id="progress-fill" class="progress-fill"></div>
+      </div>
+    </header>
+
+    <!-- Prompt Mix Toggle Bar (DE→EN, EN→DE, 🔊 Listen) -->
+    <div class="prompt-strip-wrap">
+      <div class="prompt-strip" role="group" aria-label="Prompt mode toggles">
+        <button id="pm-de_en" type="button" class="pm-pill" onclick="togglePromptMode('de_en')">DE → EN</button>
+        <button id="pm-en_de" type="button" class="pm-pill" onclick="togglePromptMode('en_de')">EN → DE</button>
+        <button id="pm-listen" type="button" class="pm-pill" onclick="togglePromptMode('listen')">🔊 Listen</button>
+      </div>
+    </div>
+
+    <!-- Scrollable Card Stage -->
+    <main id="card-stage" class="card-stage"></main>
+
+    <!-- Thumb-Zone Bottom Controls -->
+    <footer id="thumb-footer" class="thumb-footer"></footer>
+
+    <!-- 4-Tab Deck & Custom Card Manager Modal -->
+    <div id="deck-modal" class="modal-backdrop hidden" onclick="handleBackdropClick(event)">
+      <div class="modal-sheet" onclick="event.stopPropagation()">
+        <div class="modal-header">
+          <div>
+            <h2 id="modal-title" class="modal-title">Deck Manager</h2>
+            <p class="modal-sub">100% offline · Saved automatically in localStorage</p>
+          </div>
+          <button type="button" class="hdr-btn" onclick="closeModal()" aria-label="Close modal">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+              <path d="M18 6L6 18M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+
+        <div class="modal-tabs" role="tablist">
+          <button id="mtab-add" type="button" class="mtab-btn" onclick="switchModalTab('add')">+ Add Card</button>
+          <button id="mtab-browse" type="button" class="mtab-btn" onclick="switchModalTab('browse')">Browse</button>
+          <button id="mtab-io" type="button" class="mtab-btn" onclick="switchModalTab('io')">Import / Export</button>
+          <button id="mtab-voice" type="button" class="mtab-btn" onclick="switchModalTab('voice')">Voice &amp; Offline</button>
+        </div>
+
+        <div id="modal-body" class="modal-body"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* =========================================================================
+       1. CANONICAL STARTER DECK (36 HIGH GERMAN CARDS · A1–B2)
+          - 14 "vocab"
+          - 12 "verb_trap"
+          - 10 "case_practice"
+       ========================================================================= */
+    const DEFAULT_CARDS = [
+      /* ----------------------- 14 VOCAB CARDS ----------------------- */
+      {
+        id: "b1-empfehlen",
+        level: "B1",
+        deckType: "vocab",
+        pos: "verb",
+        word: "empfehlen",
+        english: "to recommend",
+        article: null,
+        plural: null,
+        isIrregular: true,
+        conjugations: {
+          praesens: "er empfiehlt",
+          praeteritum: "er empfahl",
+          perfekt: "hat empfohlen",
+          stemChange: "e → ie"
+        },
+        valency: "+ Dat (Pers.) + Akk (Sache)",
+        trapNote: "No preposition needed for the person: 'Kannst du mir (Dat) ein Buch (Akk) empfehlen?'",
+        answer: null,
+        fullSentence: null,
+        promptHint: null,
+        examples: [
+          { de: "Kannst du [[mir]] ein gutes Restaurant in der Nähe empfehlen?", en: "Can you recommend a good restaurant nearby to me?" },
+          { de: "Der Arzt empfahl [[ihm]], täglich spazieren zu gehen.", en: "The doctor recommended that he go for a walk daily." }
+        ]
+      },
+      {
+        id: "b1-entscheiden",
+        level: "B1",
+        deckType: "vocab",
+        pos: "verb",
+        word: "entscheiden",
+        english: "to decide",
+        article: null,
+        plural: null,
+        isIrregular: true,
+        conjugations: {
+          praesens: "er entscheidet",
+          praeteritum: "er entschied",
+          perfekt: "hat entschieden",
+          stemChange: "ei → ie"
+        },
+        valency: "sich entscheiden für + Akkusativ",
+        trapNote: "English says 'decide ON', but choosing one option in German uses reflexive 'sich entscheiden für + Akk'.",
+        answer: null,
+        fullSentence: null,
+        promptHint: null,
+        examples: [
+          { de: "Am Ende hat sie sich [[für die]] kleinere Wohnung entschieden.", en: "In the end, she decided on the smaller apartment." },
+          { de: "Wir müssen das bis morgen gemeinsam entscheiden.", en: "We have to decide that together by tomorrow." }
+        ]
+      },
+      {
+        id: "b1-versprechen",
+        level: "B1",
+        deckType: "vocab",
+        pos: "verb",
+        word: "versprechen",
+        english: "to promise",
+        article: null,
+        plural: null,
+        isIrregular: true,
+        conjugations: {
+          praesens: "er verspricht",
+          praeteritum: "er versprach",
+          perfekt: "hat versprochen",
+          stemChange: "e → i"
+        },
+        valency: "+ Dat (Pers.) + Akk (Sache)",
+        trapNote: "Watch out: without a person, reflexive 'sich versprechen' changes meaning completely to 'to misspeak / make a slip of the tongue'!",
+        answer: null,
+        fullSentence: null,
+        promptHint: null,
+        examples: [
+          { de: "Ich verspreche [[dir]], dass ich morgen pünktlich bin.", en: "I promise you that I will be on time tomorrow." },
+          { de: "Er hat [[seinem Bruder]] einen Ausflug in die Berge versprochen.", en: "He promised his brother a trip into the mountains." }
+        ]
+      },
+      {
+        id: "a2-vergessen",
+        level: "A2",
+        deckType: "vocab",
+        pos: "verb",
+        word: "vergessen",
+        english: "to forget",
+        article: null,
+        plural: null,
+        isIrregular: true,
+        conjugations: {
+          praesens: "er vergisst",
+          praeteritum: "er vergaß",
+          perfekt: "hat vergessen",
+          stemChange: "e → i"
+        },
+        valency: "+ Akkusativ",
+        trapNote: "Inseparable prefix 'ver-' means the Perfekt participle takes NO 'ge-' ('hat vergessen', never 'hat gevergessen').",
+        answer: null,
+        fullSentence: null,
+        promptHint: null,
+        examples: [
+          { de: "Ich habe mein Ladegerät heute Morgen im Zug vergessen.", en: "I forgot my charger on the train this morning." },
+          { de: "Er vergisst ständig, [[die]] Tür abzuschließen.", en: "He constantly forgets to lock the door." }
+        ]
+      },
+      {
+        id: "a2-gewinnen",
+        level: "A2",
+        deckType: "vocab",
+        pos: "verb",
+        word: "gewinnen",
+        english: "to win",
+        article: null,
+        plural: null,
+        isIrregular: true,
+        conjugations: {
+          praesens: "er gewinnt",
+          praeteritum: "er gewann",
+          perfekt: "hat gewonnen",
+          stemChange: "i → a → o"
+        },
+        valency: "+ Akkusativ / gegen + Akk",
+        trapNote: "Notice the inseparable 'ge-' prefix is part of the root, so the participle is 'gewonnen' (no double 'ge-').",
+        answer: null,
+        fullSentence: null,
+        promptHint: null,
+        examples: [
+          { de: "Unsere Mannschaft hat [[gegen den]] Tabellenführer gewonnen.", en: "Our team won against the league leader." },
+          { de: "Sie gewann letztes Jahr den ersten Preis beim Wettbewerb.", en: "She won first prize in the competition last year." }
+        ]
+      },
+      {
+        id: "b1-verschwinden",
+        level: "B1",
+        deckType: "vocab",
+        pos: "verb",
+        word: "verschwinden",
+        english: "to disappear / vanish",
+        article: null,
+        plural: null,
+        isIrregular: true,
+        conjugations: {
+          praesens: "er verschwindet",
+          praeteritum: "er verschwand",
+          perfekt: "ist verschwunden",
+          stemChange: "i → a → u"
+        },
+        valency: "Perfekt mit sein!",
+        trapNote: "Change of state/location! Always uses 'sein' in Perfekt ('ist verschwunden'), never 'hat'.",
+        answer: null,
+        fullSentence: null,
+        promptHint: null,
+        examples: [
+          { de: "Die Sonne [[ist]] hinter den dunklen Wolken verschwunden.", en: "The sun disappeared behind the dark clouds." },
+          { de: "Mein Schlüssel war plötzlich spurlos verschwunden.", en: "My key had suddenly vanished without a trace." }
+        ]
+      },
+      {
+        id: "b1-entscheidung",
+        level: "B1",
+        deckType: "vocab",
+        pos: "noun",
+        word: "Entscheidung",
+        english: "decision",
+        article: "die",
+        plural: "die Entscheidungen",
+        isIrregular: false,
+        conjugations: null,
+        valency: "eine Entscheidung treffen",
+        trapNote: "Every noun ending in '-ung' is ALWAYS feminine (die). You don't 'machen' a decision in idiomatic German — you 'treffen' it.",
+        answer: null,
+        fullSentence: null,
+        promptHint: null,
+        examples: [
+          { de: "Wir müssen bis Freitag eine klare Entscheidung treffen.", en: "We have to make a clear decision by Friday." },
+          { de: "Diese Entscheidung hängt [[von]] mehreren Faktoren ab.", en: "This decision depends on several factors." }
+        ]
+      },
+      {
+        id: "a2-unterschied",
+        level: "A2",
+        deckType: "vocab",
+        pos: "noun",
+        word: "Unterschied",
+        english: "difference",
+        article: "der",
+        plural: "die Unterschiede",
+        isIrregular: false,
+        conjugations: null,
+        valency: "zwischen + Dativ",
+        trapNote: "Always paired with 'zwischen + Dativ' when comparing two things.",
+        answer: null,
+        fullSentence: null,
+        promptHint: null,
+        examples: [
+          { de: "Was ist der Unterschied [[zwischen]] 'kennen' und 'wissen'?", en: "What is the difference between 'kennen' and 'wissen'?" },
+          { de: "Man merkt sofort einen großen Unterschied.", en: "You immediately notice a big difference." }
+        ]
+      },
+      {
+        id: "b1-erfahrung",
+        level: "B1",
+        deckType: "vocab",
+        pos: "noun",
+        word: "Erfahrung",
+        english: "experience",
+        article: "die",
+        plural: "die Erfahrungen",
+        isIrregular: false,
+        conjugations: null,
+        valency: "Erfahrungen sammeln / machen mit + Dat",
+        trapNote: "Unlike uncountable English 'experience', German very frequently uses the plural 'Erfahrungen sammeln' (to gain experience).",
+        answer: null,
+        fullSentence: null,
+        promptHint: null,
+        examples: [
+          { de: "Ich habe sehr gute Erfahrungen [[mit diesem]] Kurs gemacht.", en: "I had very good experiences with this course." },
+          { de: "Im Ausland sammelt man wertvolle Erfahrungen.", en: "Abroad, you gather valuable experience." }
+        ]
+      },
+      {
+        id: "b1-ergebnis",
+        level: "B1",
+        deckType: "vocab",
+        pos: "noun",
+        word: "Ergebnis",
+        english: "result / outcome",
+        article: "das",
+        plural: "die Ergebnisse",
+        isIrregular: false,
+        conjugations: null,
+        valency: "zu einem Ergebnis kommen",
+        trapNote: "Most abstract nouns ending in '-nis' are neuter ('das Ergebnis', 'das Geheimnis'), and double the 's' in plural ('-nisse').",
+        answer: null,
+        fullSentence: null,
+        promptHint: null,
+        examples: [
+          { de: "Nach langer Diskussion kamen wir [[zu einem]] guten Ergebnis.", en: "After a long discussion we arrived at a good result." },
+          { de: "Die Ergebnisse der Prüfung werden morgen veröffentlicht.", en: "The exam results will be published tomorrow." }
+        ]
+      },
+      {
+        id: "b2-gelegenheit",
+        level: "B2",
+        deckType: "vocab",
+        pos: "noun",
+        word: "Gelegenheit",
+        english: "opportunity / occasion",
+        article: "die",
+        plural: "die Gelegenheiten",
+        isIrregular: false,
+        conjugations: null,
+        valency: "bei Gelegenheit / eine Gelegenheit nutzen",
+        trapNote: "Every noun ending in '-heit' or '-keit' is 100% feminine (die). 'Bei Gelegenheit' = whenever you get the chance.",
+        answer: null,
+        fullSentence: null,
+        promptHint: null,
+        examples: [
+          { de: "Ich möchte diese Gelegenheit nutzen, mich [[bei dir]] zu bedanken.", en: "I want to take this opportunity to thank you." },
+          { de: "Ruf mich [[bei]] Gelegenheit einfach kurz an.", en: "Just give me a quick call when you get the chance." }
+        ]
+      },
+      {
+        id: "b1-obwohl",
+        level: "B1",
+        deckType: "vocab",
+        pos: "conjunction",
+        word: "obwohl",
+        english: "although / even though",
+        article: null,
+        plural: null,
+        isIrregular: false,
+        conjugations: null,
+        valency: "Subordinate Clause → Verb at End",
+        trapNote: "Kicks the conjugated verb to the end of its clause! If 'obwohl' starts the sentence, the main clause starts immediately with a verb (verb-verb comma).",
+        answer: null,
+        fullSentence: null,
+        promptHint: null,
+        examples: [
+          { de: "[[Obwohl]] es stark regnete, gingen wir noch wandern.", en: "Although it was raining heavily, we still went hiking." },
+          { de: "Er bestand die Prüfung, [[obwohl]] er kaum geschlafen hatte.", en: "He passed the exam even though he had barely slept." }
+        ]
+      },
+      {
+        id: "a2-trotzdem",
+        level: "A2",
+        deckType: "vocab",
+        pos: "adverb",
+        word: "trotzdem",
+        english: "nevertheless / even so / still",
+        article: null,
+        plural: null,
+        isIrregular: false,
+        conjugations: null,
+        valency: "Position 1 → V2 Verb-Subject Inversion",
+        trapNote: "Not a coordinating conjunction like 'aber'! Starting a clause with 'trotzdem' forces the verb directly after it ('trotzdem gehe ich', NOT 'trotzdem ich gehe').",
+        answer: null,
+        fullSentence: null,
+        promptHint: null,
+        examples: [
+          { de: "Der Weg war steil, [[trotzdem]] erreichten wir den Gipfel früh.", en: "The trail was steep; nevertheless we reached the summit early." },
+          { de: "Ich bin müde, lerne aber [[trotzdem]] noch zehn Minuten weiter.", en: "I'm tired, yet I'll still keep studying for ten more minutes." }
+        ]
+      },
+      {
+        id: "b2-zuverlaessig",
+        level: "B2",
+        deckType: "vocab",
+        pos: "adjective",
+        word: "zuverlässig",
+        english: "reliable / dependable",
+        article: null,
+        plural: null,
+        isIrregular: false,
+        conjugations: null,
+        valency: null,
+        trapNote: "Related to 'sich verlassen auf' (to rely on). Watch the umlaut 'ä' when pronouncing!",
+        answer: null,
+        fullSentence: null,
+        promptHint: null,
+        examples: [
+          { de: "Die Züge sind hier extrem pünktlich und zuverlässig.", en: "The trains here are extremely punctual and reliable." },
+          { de: "Sie ist eine sehr zuverlässige Kollegin, [[auf die]] man zählen kann.", en: "She is a very reliable colleague whom you can count on." }
+        ]
+      },
+
+      /* ----------------------- 12 VERB TRAP CARDS ----------------------- */
+      {
+        id: "b1-warten-auf",
+        level: "B1",
+        deckType: "verb_trap",
+        pos: "verb",
+        word: "warten auf",
+        english: "to wait for",
+        article: null,
+        plural: null,
+        isIrregular: false,
+        conjugations: {
+          praesens: "er wartet",
+          praeteritum: "er wartete",
+          perfekt: "hat gewartet",
+          stemChange: null
+        },
+        valency: "auf + Akkusativ",
+        trapNote: "English says 'wait FOR', so learners wrongly use 'für'. German locks this to 'auf + Akkusativ'.",
+        answer: null,
+        fullSentence: null,
+        promptHint: null,
+        examples: [
+          { de: "Ich warte schon lange [[auf den]] Bus.", en: "I have been waiting for the bus for a long time." },
+          { de: "Worauf wartest du? Ich warte [[auf]] meine Freundin.", en: "What are you waiting for? I'm waiting for my girlfriend." }
+        ]
+      },
+      {
+        id: "a1-helfen",
+        level: "A1",
+        deckType: "verb_trap",
+        pos: "verb",
+        word: "helfen",
+        english: "to help",
+        article: null,
+        plural: null,
+        isIrregular: true,
+        conjugations: {
+          praesens: "er hilft",
+          praeteritum: "er half",
+          perfekt: "hat geholfen",
+          stemChange: "e → i"
+        },
+        valency: "+ Dativ (helfen bei + Dat)",
+        trapNote: "English has no dative pronoun split, tempting you into 'mich/dich'. 'helfen' ALWAYS demands Dativ ('mir', 'dir', 'ihm', 'der Frau').",
+        answer: null,
+        fullSentence: null,
+        promptHint: null,
+        examples: [
+          { de: "Kannst du [[mir]] bitte kurz [[beim]] Tragen helfen?", en: "Can you briefly help me with carrying this?" },
+          { de: "Diese Methode hat [[dem]] Schüler enorm geholfen.", en: "This method helped the student enormously." }
+        ]
+      },
+      {
+        id: "a2-interessieren-fuer",
+        level: "A2",
+        deckType: "verb_trap",
+        pos: "verb",
+        word: "sich interessieren für",
+        english: "to be interested in",
+        article: null,
+        plural: null,
+        isIrregular: false,
+        conjugations: {
+          praesens: "er interessiert sich",
+          praeteritum: "er interessierte sich",
+          perfekt: "hat sich interessiert",
+          stemChange: null
+        },
+        valency: "für + Akkusativ (reflexiv)",
+        trapNote: "English says 'interested IN', pulling you toward 'in'. German uses a reflexive verb + 'für + Akkusativ'.",
+        answer: null,
+        fullSentence: null,
+        promptHint: null,
+        examples: [
+          { de: "Ich interessiere mich sehr [[für]] Meteorologie und Physik.", en: "I am very interested in meteorology and physics." },
+          { de: "Wofür interessiert sich dein Bruder eigentlich?", en: "What is your brother actually interested in?" }
+        ]
+      },
+      {
+        id: "b1-verzichten-auf",
+        level: "B1",
+        deckType: "verb_trap",
+        pos: "verb",
+        word: "verzichten auf",
+        english: "to do without / give up",
+        article: null,
+        plural: null,
+        isIrregular: false,
+        conjugations: {
+          praesens: "er verzichtet",
+          praeteritum: "er verzichtete",
+          perfekt: "hat verzichtet",
+          stemChange: null
+        },
+        valency: "auf + Akkusativ",
+        trapNote: "Never translate 'do without' literally with 'ohne'! German always pairs 'verzichten' with 'auf + Akkusativ'.",
+        answer: null,
+        fullSentence: null,
+        promptHint: null,
+        examples: [
+          { de: "Morgens kann ich einfach nicht [[auf meinen]] Kaffee verzichten.", en: "In the morning I simply cannot do without my coffee." },
+          { de: "Aus Zeitgründen haben wir [[auf den]] Nachtisch verzichtet.", en: "Due to lack of time we skipped dessert." }
+        ]
+      },
+      {
+        id: "a2-freuen-auf",
+        level: "A2",
+        deckType: "verb_trap",
+        pos: "verb",
+        word: "sich freuen auf",
+        english: "to look forward to",
+        article: null,
+        plural: null,
+        isIrregular: false,
+        conjugations: {
+          praesens: "er freut sich",
+          praeteritum: "er freute sich",
+          perfekt: "hat sich gefreut",
+          stemChange: null
+        },
+        valency: "auf + Akk (Future) · über + Akk (Now/Past)",
+        trapNote: "Preposition splits the meaning! 'auf' = anticipating the future; 'über' = happy about something happening now or already received.",
+        answer: null,
+        fullSentence: null,
+        promptHint: null,
+        examples: [
+          { de: "Wir freuen uns schon riesig [[auf die]] Skisaison.", en: "We are already really looking forward to the ski season." },
+          { de: "Sie hat sich sehr [[über das]] Geschenk gefreut.", en: "She was very happy about the gift." }
+        ]
+      },
+      {
+        id: "a2-denken-an",
+        level: "A2",
+        deckType: "verb_trap",
+        pos: "verb",
+        word: "denken an",
+        english: "to think of / about",
+        article: null,
+        plural: null,
+        isIrregular: true,
+        conjugations: {
+          praesens: "er denkt",
+          praeteritum: "er dachte",
+          perfekt: "hat gedacht",
+          stemChange: "e → a (mixed)"
+        },
+        valency: "an + Akkusativ",
+        trapNote: "English 'think ABOUT' tempts you to use 'über'. Plain 'denken' takes 'an + Akk'. ('über + Akk' is only for 'nachdenken über' = to ponder deeply.)",
+        answer: null,
+        fullSentence: null,
+        promptHint: null,
+        examples: [
+          { de: "Ich denke oft [[an unseren]] letzten Urlaub zurück.", en: "I often think back on our last vacation." },
+          { de: "Hast du [[an deinen]] Ausweis gedacht?", en: "Did you remember your ID?" }
+        ]
+      },
+      {
+        id: "b1-erinnern-an",
+        level: "B1",
+        deckType: "verb_trap",
+        pos: "verb",
+        word: "sich erinnern an",
+        english: "to remember",
+        article: null,
+        plural: null,
+        isIrregular: false,
+        conjugations: {
+          praesens: "er erinnert sich",
+          praeteritum: "er erinnerte sich",
+          perfekt: "hat sich erinnert",
+          stemChange: null
+        },
+        valency: "an + Akkusativ (reflexiv)",
+        trapNote: "Without 'sich', 'erinnern' means 'to remind someone else'! To remember something yourself, you MUST add 'sich' + 'an + Akkusativ'.",
+        answer: null,
+        fullSentence: null,
+        promptHint: null,
+        examples: [
+          { de: "Ich erinnere mich noch genau [[an diesen]] Tag.", en: "I still remember this day vividly." },
+          { de: "Kannst du dich [[an seinen]] Namen erinnern?", en: "Can you remember his name?" }
+        ]
+      },
+      {
+        id: "a2-gratulieren",
+        level: "A2",
+        deckType: "verb_trap",
+        pos: "verb",
+        word: "gratulieren",
+        english: "to congratulate",
+        article: null,
+        plural: null,
+        isIrregular: false,
+        conjugations: {
+          praesens: "er gratuliert",
+          praeteritum: "er gratulierte",
+          perfekt: "hat gratuliert",
+          stemChange: null
+        },
+        valency: "+ Dat (Pers.) + zu + Dativ (Anlass)",
+        trapNote: "Double dative trap! Both the person ('dir') AND the occasion ('zu + Dat', NOT 'auf' or 'für') take Dativ.",
+        answer: null,
+        fullSentence: null,
+        promptHint: null,
+        examples: [
+          { de: "Ich gratuliere [[dir]] herzlich [[zum]] Geburtstag!", en: "I warmly congratulate you on your birthday!" },
+          { de: "Alle haben [[ihr]] [[zur]] bestandenen Prüfung gratuliert.", en: "Everyone congratulated her on passing the exam." }
+        ]
+      },
+      {
+        id: "b1-begegnen",
+        level: "B1",
+        deckType: "verb_trap",
+        pos: "verb",
+        word: "begegnen",
+        english: "to run into / encounter",
+        article: null,
+        plural: null,
+        isIrregular: false,
+        conjugations: {
+          praesens: "er begegnet",
+          praeteritum: "er begegnete",
+          perfekt: "ist begegnet",
+          stemChange: null
+        },
+        valency: "+ Dativ · Perfekt mit sein!",
+        trapNote: "Double trap! Always takes Dativ ('einem Freund') AND uses 'sein' in Perfekt ('bin begegnet'), never 'haben'.",
+        answer: null,
+        fullSentence: null,
+        promptHint: null,
+        examples: [
+          { de: "Gestern bin ich [[meinem alten]] Lehrer in der Stadt begegnet.", en: "Yesterday I ran into my old teacher in town." },
+          { de: "Auf dem Weg zur Arbeit begegne ich oft [[dem]] Nachbarn.", en: "On the way to work I often run into the neighbor." }
+        ]
+      },
+      {
+        id: "b1-abhaengen-von",
+        level: "B1",
+        deckType: "verb_trap",
+        pos: "verb",
+        word: "abhängen von",
+        english: "to depend on",
+        article: null,
+        plural: null,
+        isIrregular: true,
+        conjugations: {
+          praesens: "es hängt ab",
+          praeteritum: "es hing ab",
+          perfekt: "hat abgehangen",
+          stemChange: "ä → i → a (separable)"
+        },
+        valency: "von + Dativ",
+        trapNote: "English says 'depend ON', pulling you toward 'auf'. German hangs FROM something: 'abhängen von + Dativ' (vom = von dem).",
+        answer: null,
+        fullSentence: null,
+        promptHint: null,
+        examples: [
+          { de: "Es hängt ganz [[vom]] Wetter ab, ob wir fahren.", en: "It depends entirely on the weather whether we go." },
+          { de: "Der Erfolg hing stark [[von einer]] guten Planung ab.", en: "Success depended heavily on good planning." }
+        ]
+      },
+      {
+        id: "b1-teilnehmen-an",
+        level: "B1",
+        deckType: "verb_trap",
+        pos: "verb",
+        word: "teilnehmen an",
+        english: "to participate in / take part in",
+        article: null,
+        plural: null,
+        isIrregular: true,
+        conjugations: {
+          praesens: "er nimmt teil",
+          praeteritum: "er nahm teil",
+          perfekt: "hat teilgenommen",
+          stemChange: "e → i (separable)"
+        },
+        valency: "an + Dativ",
+        trapNote: "English says 'participate IN', but German NEVER uses 'in' here — always 'teilnehmen an + Dativ' (am = an dem).",
+        answer: null,
+        fullSentence: null,
+        promptHint: null,
+        examples: [
+          { de: "Nimmst du morgen [[an dem]] Wettbewerb teil?", en: "Are you taking part in the competition tomorrow?" },
+          { de: "Über dreißig Schüler haben [[am]] Kurs teilgenommen.", en: "Over thirty students participated in the course." }
+        ]
+      },
+      {
+        id: "a2-gehoeren",
+        level: "A2",
+        deckType: "verb_trap",
+        pos: "verb",
+        word: "gehören",
+        english: "to belong to",
+        article: null,
+        plural: null,
+        isIrregular: false,
+        conjugations: {
+          praesens: "es gehört",
+          praeteritum: "es gehörte",
+          perfekt: "hat gehört",
+          stemChange: null
+        },
+        valency: "+ Dativ (Owner) · zu + Dativ (Group)",
+        trapNote: "Do NOT add 'zu' for ownership! Say 'Das gehört mir' (belongs to me). Use 'gehören zu + Dat' only when something is part of a group.",
+        answer: null,
+        fullSentence: null,
+        promptHint: null,
+        examples: [
+          { de: "Gehört dieser blaue Rucksack [[dir]]?", en: "Does this blue backpack belong to you?" },
+          { de: "Üben gehört einfach [[zum]] Sprachenlernen dazu.", en: "Practice is simply part of learning a language." }
+        ]
+      },
+
+      /* ----------------------- 10 CASE PRACTICE CARDS ----------------------- */
+      {
+        id: "b1-case-warten-1",
+        level: "B1",
+        deckType: "case_practice",
+        pos: "case_practice",
+        word: "Ich warte schon seit zehn Minuten ___ (der Zug).",
+        english: "I've been waiting for the train for ten minutes.",
+        article: null,
+        plural: null,
+        isIrregular: false,
+        conjugations: null,
+        valency: "warten auf + Akkusativ",
+        trapNote: "Never use 'für' for 'wait for'. 'auf' here takes Akkusativ (der Zug → den Zug).",
+        answer: "auf den Zug",
+        fullSentence: "Ich warte schon seit zehn Minuten auf den Zug.",
+        promptHint: "Preposition + Case",
+        examples: [
+          { de: "Wir warten [[auf eine]] schnelle Antwort.", en: "We are waiting for a quick reply." }
+        ]
+      },
+      {
+        id: "a2-case-helfen-1",
+        level: "A2",
+        deckType: "case_practice",
+        pos: "case_practice",
+        word: "Kannst du ___ (mein Bruder) bei den Hausaufgaben helfen?",
+        english: "Can you help my brother with the homework?",
+        article: null,
+        plural: null,
+        isIrregular: false,
+        conjugations: null,
+        valency: "helfen + Dativ",
+        trapNote: "No preposition before the person, and 'helfen' strictly forces Dativ (mein Bruder → meinem Bruder, not 'meinen').",
+        answer: "meinem Bruder",
+        fullSentence: "Kannst du meinem Bruder bei den Hausaufgaben helfen?",
+        promptHint: "Verb Case Government",
+        examples: [
+          { de: "Sie hilft [[ihrer]] Schwester beim Umzug.", en: "She is helping her sister with the move." }
+        ]
+      },
+      {
+        id: "b1-case-stolz-1",
+        level: "B1",
+        deckType: "case_practice",
+        pos: "case_practice",
+        word: "Ich bin unglaublich stolz ___ (mein Fortschritt).",
+        english: "I am incredibly proud of my progress.",
+        article: null,
+        plural: null,
+        isIrregular: false,
+        conjugations: null,
+        valency: "stolz auf + Akkusativ",
+        trapNote: "English 'proud OF' lures you into 'von'. German 'stolz' (and 'eifersüchtig') ALWAYS takes 'auf + Akkusativ' (mein → meinen).",
+        answer: "auf meinen Fortschritt",
+        fullSentence: "Ich bin unglaublich stolz auf meinen Fortschritt.",
+        promptHint: "Adjective + Preposition",
+        examples: [
+          { de: "Deine Eltern sind sicher sehr stolz [[auf dich]].", en: "Your parents are surely very proud of you." }
+        ]
+      },
+      {
+        id: "a2-case-angst-1",
+        level: "A2",
+        deckType: "case_practice",
+        pos: "case_practice",
+        word: "Viele Lernende haben Angst ___ (die Prüfung).",
+        english: "Many learners are afraid of the exam.",
+        article: null,
+        plural: null,
+        isIrregular: false,
+        conjugations: null,
+        valency: "Angst haben vor + Dativ",
+        trapNote: "English 'afraid OF' tempts you to write 'von'. In German, fear always takes 'vor + Dativ' (die Prüfung → der Prüfung).",
+        answer: "vor der Prüfung",
+        fullSentence: "Viele Lernende haben Angst vor der Prüfung.",
+        promptHint: "Preposition + Case",
+        examples: [
+          { de: "Hast du wirklich Angst [[vor großen]] Hunden?", en: "Are you really afraid of big dogs?" }
+        ]
+      },
+      {
+        id: "b1-case-beschweren-1",
+        level: "B1",
+        deckType: "case_practice",
+        pos: "case_practice",
+        word: "Die Gäste haben sich ___ (der Lärm) beschwert.",
+        english: "The guests complained about the noise.",
+        article: null,
+        plural: null,
+        isIrregular: false,
+        conjugations: null,
+        valency: "sich beschweren über + Akkusativ",
+        trapNote: "Complain ABOUT something = 'über + Akkusativ' (der Lärm → den Lärm). Complain TO someone = 'bei + Dativ'.",
+        answer: "über den Lärm",
+        fullSentence: "Die Gäste haben sich über den Lärm beschwert.",
+        promptHint: "Reflexive + Preposition",
+        examples: [
+          { de: "Wir haben uns [[beim]] Kellner [[über das]] kalte Essen beschwert.", en: "We complained to the waiter about the cold food." }
+        ]
+      },
+      {
+        id: "a2-case-traeumen-1",
+        level: "A2",
+        deckType: "case_practice",
+        pos: "case_practice",
+        word: "Er träumt schon lange ___ (eine Reise) nach Japan.",
+        english: "He has been dreaming of a trip to Japan for a long time.",
+        article: null,
+        plural: null,
+        isIrregular: false,
+        conjugations: null,
+        valency: "träumen von + Dativ",
+        trapNote: "English 'dream ABOUT' tempts you into 'über'. German 'träumen' always governs 'von + Dativ' (eine Reise → einer Reise).",
+        answer: "von einer Reise",
+        fullSentence: "Er träumt schon lange von einer Reise nach Japan.",
+        promptHint: "Preposition + Case",
+        examples: [
+          { de: "Wovon träumst du? Ich träume [[vom]] ersten Tiefschnee.", en: "What are you dreaming of? I'm dreaming of the first deep powder snow." }
+        ]
+      },
+      {
+        id: "a2-case-fragen-nach-1",
+        level: "A2",
+        deckType: "case_practice",
+        pos: "case_practice",
+        word: "Ein Tourist fragte mich ___ (der Weg) zum Bahnhof.",
+        english: "A tourist asked me for the way to the train station.",
+        article: null,
+        plural: null,
+        isIrregular: false,
+        conjugations: null,
+        valency: "fragen nach + Dativ",
+        trapNote: "English says 'ask FOR directions', so learners try 'für'. Asking for information in German is ALWAYS 'fragen nach + Dativ' (der Weg → dem Weg).",
+        answer: "nach dem Weg",
+        fullSentence: "Ein Tourist fragte mich nach dem Weg zum Bahnhof.",
+        promptHint: "Preposition + Case",
+        examples: [
+          { de: "Sie hat [[nach deiner]] Telefonnummer gefragt.", en: "She asked for your phone number." }
+        ]
+      },
+      {
+        id: "b1-case-danken-1",
+        level: "B1",
+        deckType: "case_practice",
+        pos: "case_practice",
+        word: "Ich danke ___ (du) herzlich ___ (deine Hilfe).",
+        english: "I warmly thank you for your help.",
+        article: null,
+        plural: null,
+        isIrregular: false,
+        conjugations: null,
+        valency: "danken + Dat (Pers.) + für + Akk",
+        trapNote: "Two-part trap: person takes Dativ ('dir', not 'dich'), and the reason takes 'für + Akkusativ' ('deine Hilfe').",
+        answer: "dir … für deine Hilfe",
+        fullSentence: "Ich danke dir herzlich für deine Hilfe.",
+        promptHint: "Double Case Trap",
+        examples: [
+          { de: "Wir danken [[Ihnen]] [[für das]] schnelle Feedback.", en: "We thank you (formal) for the quick feedback." }
+        ]
+      },
+      {
+        id: "b1-case-passen-1",
+        level: "B1",
+        deckType: "case_practice",
+        pos: "case_practice",
+        word: "Diese Jacke passt perfekt ___ (deine Schuhe).",
+        english: "This jacket goes perfectly with your shoes.",
+        article: null,
+        plural: null,
+        isIrregular: false,
+        conjugations: null,
+        valency: "passen zu + Dativ",
+        trapNote: "English 'go WITH / match' tempts you into 'mit' or no preposition. Matching items in German take 'passen zu + Dativ' (plural Dativ adds '-n': deinen Schuhen).",
+        answer: "zu deinen Schuhen",
+        fullSentence: "Diese Jacke passt perfekt zu deinen Schuhen.",
+        promptHint: "Preposition + Plural Dativ",
+        examples: [
+          { de: "Die Farbe passt super [[zum]] neuen Design.", en: "The color matches the new design great." }
+        ]
+      },
+      {
+        id: "b2-case-abhaengig-1",
+        level: "B2",
+        deckType: "case_practice",
+        pos: "case_practice",
+        word: "Unsere Pläne sind stark abhängig ___ (die Schneelage).",
+        english: "Our plans are strongly dependent on the snow conditions.",
+        article: null,
+        plural: null,
+        isIrregular: false,
+        conjugations: null,
+        valency: "abhängig von + Dativ",
+        trapNote: "Just like the verb 'abhängen', the adjective 'abhängig' rejects English 'on' ('auf') and locks onto 'von + Dativ' (die → der).",
+        answer: "von der Schneelage",
+        fullSentence: "Unsere Pläne sind stark abhängig von der Schneelage.",
+        promptHint: "Adjective + Preposition",
+        examples: [
+          { de: "Er will finanziell unabhängig [[von seinen]] Eltern sein.", en: "He wants to be financially independent from his parents." }
+        ]
+      }
+    ];
+
+    /* =========================================================================
+       2. CONSTANTS, PERSISTENT STATE & AUTO-LEECH HARD TRACKING
+       ========================================================================= */
+    const STORAGE_KEY = "wortflow_unified_v3";
+    const LEVELS = ["A1", "A2", "B1", "B2"];
+    const PACKS = [
+      { key: "vocab", label: "Vocab" },
+      { key: "verb_trap", label: "Verb Traps" },
+      { key: "case_practice", label: "Case Practice" }
+    ];
+    const DAY_MS = 86400000;
+
+    const POS_LABELS = {
+      verb: "Verb",
+      noun: "Noun",
+      adjective: "Adjective",
+      adverb: "Adverb",
+      conjunction: "Conjunction",
+      phrase: "Phrase",
+      case_practice: "Case Practice"
+    };
+
+    let state = {
+      cards: JSON.parse(JSON.stringify(DEFAULT_CARDS)),
+      selectedLevels: ["A2", "B1"],
+      selectedPacks: ["vocab", "verb_trap", "case_practice"],
+      hardOnly: false,
+      promptModes: { de_en: true, en_de: true, listen: true },
+      clozeEnabled: true,
+      preferredVoiceName: "",
+      // SRS map: { [id]: { status, reps, intervalDays, nextDue, lapses, manualHard } }
+      srs: {},
+      streak: 0,
+
+      // Session runtime state
+      queue: [],
+      sessionInitialDue: 0,
+      sessionDoneIds: new Set(),
+      cramMode: false,
+      isRevealed: false,
+      currentPromptMode: "de_en", // "de_en" | "en_de" | "listen" | "case_practice"
+      peekedSpelling: false,
+      revealedClozes: new Set(),
+
+      // Modal & editor UI state
+      modalTab: "add",
+      editingCardId: null,
+      browseSearch: "",
+      armedDeleteId: null,
+      armedResetProgress: false,
+      armedRestoreDefaults: false,
+      formExamples: [{ de: "", en: "" }, { de: "", en: "" }]
+    };
+
+    /**
+     * Load saved app state from localStorage safely.
+     */
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return;
+        const p = JSON.parse(raw);
+        if (Array.isArray(p.cards) && p.cards.length) state.cards = p.cards;
+        if (Array.isArray(p.selectedLevels)) {
+          state.selectedLevels = p.selectedLevels.filter(l => LEVELS.includes(l));
+        }
+        if (Array.isArray(p.selectedPacks)) {
+          state.selectedPacks = p.selectedPacks.filter(k => PACKS.some(pk => pk.key === k));
+        }
+        if (typeof p.hardOnly === "boolean") state.hardOnly = p.hardOnly;
+        if (p.promptModes && typeof p.promptModes === "object") {
+          const next = {
+            de_en: Boolean(p.promptModes.de_en),
+            en_de: Boolean(p.promptModes.en_de),
+            listen: Boolean(p.promptModes.listen)
+          };
+          if (next.de_en || next.en_de || next.listen) state.promptModes = next;
+        }
+        if (typeof p.clozeEnabled === "boolean") state.clozeEnabled = p.clozeEnabled;
+        if (typeof p.preferredVoiceName === "string") state.preferredVoiceName = p.preferredVoiceName;
+        if (p.srs && typeof p.srs === "object") state.srs = p.srs;
+        if (typeof p.streak === "number") state.streak = p.streak;
+
+        // Safety invariant: keep at least one level and pack if Hard is not soloed
+        if (!state.hardOnly) {
+          if (!state.selectedLevels.length) state.selectedLevels = ["A2", "B1"];
+          if (!state.selectedPacks.length) state.selectedPacks = ["vocab", "verb_trap", "case_practice"];
+        }
+      } catch (err) {
+        console.warn("Could not load WortFlow state:", err);
+      }
+    }
+
+    /**
+     * Save persistent user data to localStorage.
+     */
+    function saveState() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({
+          cards: state.cards,
+          selectedLevels: state.selectedLevels,
+          selectedPacks: state.selectedPacks,
+          hardOnly: state.hardOnly,
+          promptModes: state.promptModes,
+          clozeEnabled: state.clozeEnabled,
+          preferredVoiceName: state.preferredVoiceName,
+          srs: state.srs,
+          streak: state.streak
+        }));
+      } catch (err) {
+        console.warn("localStorage save failed:", err);
+      }
+    }
+
+    function getSrs(id) {
+      return state.srs[id] || {
+        status: "new",
+        reps: 0,
+        intervalDays: 0,
+        nextDue: 0,
+        lapses: 0,
+        manualHard: null // null = auto (lapses >= 3), true = pinned hard, false = unpinned
+      };
+    }
+
+    /**
+     * Determine whether a card is flagged as 🔥 Hard (auto-leech >= 3 lapses OR manual toggle).
+     */
+    function isCardHard(id) {
+      const r = getSrs(id);
+      if (r.manualHard === true) return true;
+      if (r.manualHard === false) return false;
+      return (r.lapses || 0) >= 3;
+    }
+
+    function isCardDue(id) {
+      const r = getSrs(id);
+      return !r.nextDue || r.nextDue <= Date.now();
+    }
+
+    function getTotalHardCount() {
+      return state.cards.filter(c => isCardHard(c.id)).length;
+    }
+
+    /* =========================================================================
+       3. OFFLINE-SAFE WEB SPEECH API ENGINE (EXPLICIT de-DE + VOICE SELECTOR)
+       ========================================================================= */
+    let availableDeVoices = [];
+    let activeAudioBtnId = null;
+    let activeUtterance = null;
+    let speechSeqToken = 0;
+
+    function refreshGermanVoices() {
+      if (!("speechSynthesis" in window)) {
+        availableDeVoices = [];
+        return [];
+      }
+      const all = window.speechSynthesis.getVoices() || [];
+      const exact = all.filter(v => (v.lang || "").toLowerCase().replace("_", "-") === "de-de");
+      const otherDe = all.filter(v => {
+        const l = (v.lang || "").toLowerCase().replace("_", "-");
+        return l.startsWith("de") && l !== "de-de";
+      });
+      availableDeVoices = [...exact, ...otherDe];
+      return availableDeVoices;
+    }
+
+    function getSelectedGermanVoice() {
+      if (!availableDeVoices.length) refreshGermanVoices();
+      if (!availableDeVoices.length) return null;
+
+      if (state.preferredVoiceName) {
+        const chosen = availableDeVoices.find(v => v.name === state.preferredVoiceName);
+        if (chosen) return chosen;
+      }
+
+      const preferred = ["google deutsch", "anna", "markus", "katja", "helena", "stefan", "petra", "marlene"];
+      for (const kw of preferred) {
+        const match = availableDeVoices.find(v => (v.name || "").toLowerCase().includes(kw));
+        if (match) return match;
+      }
+
+      return availableDeVoices.find(v => v.localService) || availableDeVoices[0];
+    }
+
+    if ("speechSynthesis" in window) {
+      refreshGermanVoices();
+      if (typeof window.speechSynthesis.onvoiceschanged !== "undefined") {
+        window.speechSynthesis.onvoiceschanged = () => {
+          refreshGermanVoices();
+          const modalOpen = !document.getElementById("deck-modal").classList.contains("hidden");
+          if (modalOpen && state.modalTab === "voice") renderModalBody();
+        };
+      }
+    }
+
+    function setSpeakingVisual(btnId) {
+      if (activeAudioBtnId) {
+        const oldBtn = document.querySelector(`[data-audio-btn="${activeAudioBtnId}"]`);
+        if (oldBtn) oldBtn.classList.remove("speaking-active");
+      }
+      activeAudioBtnId = btnId;
+      if (btnId) {
+        const nextBtn = document.querySelector(`[data-audio-btn="${btnId}"]`);
+        if (nextBtn) nextBtn.classList.add("speaking-active");
+      }
+    }
+
+    function stopSpeech() {
+      speechSeqToken++;
+      if ("speechSynthesis" in window) {
+        try { window.speechSynthesis.cancel(); } catch (_) {}
+      }
+      activeUtterance = null;
+      setSpeakingVisual(null);
+    }
+
+    function cleanSpeechText(raw) {
+      return String(raw || "")
+        .replace(/\[\[/g, "")
+        .replace(/\]\]/g, "")
+        .replace(/\s*\/\s*/g, ", ")
+        .trim();
+    }
+
+    /**
+     * Speak German text explicitly in de-DE, cancelling overlapping speech cleanly.
+     */
+    function speakDE(rawText, btnId, rate = 1.0, evt = null, silentFail = false) {
+      if (evt) evt.stopPropagation();
+      if (!("speechSynthesis" in window)) {
+        if (!silentFail) showToast("Speech synthesis not supported in this browser.", "err");
+        return;
+      }
+
+      if (activeAudioBtnId === btnId && window.speechSynthesis.speaking) {
+        stopSpeech();
+        return;
+      }
+
+      speechSeqToken++;
+      const token = speechSeqToken;
+      try { window.speechSynthesis.cancel(); } catch (_) {}
+
+      const text = cleanSpeechText(rawText);
+      if (!text) return;
+
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = "de-DE";
+      const v = getSelectedGermanVoice();
+      if (v) u.voice = v;
+      u.rate = rate;
+      u.pitch = 1.0;
+
+      activeUtterance = u;
+      setSpeakingVisual(btnId);
+
+      u.onend = () => {
+        if (speechSeqToken === token) {
+          activeUtterance = null;
+          setSpeakingVisual(null);
+        }
+      };
+      u.onerror = () => {
+        if (speechSeqToken === token) {
+          activeUtterance = null;
+          setSpeakingVisual(null);
+        }
+      };
+
+      try {
+        window.speechSynthesis.speak(u);
+      } catch (_) {
+        setSpeakingVisual(null);
+        if (!silentFail) showToast("Audio playback unavailable.", "err");
+      }
+    }
+
+    /**
+     * Sequentially play verb forms without race conditions.
+     */
+    function speakSequenceDE(items, btnId, evt = null) {
+      if (evt) evt.stopPropagation();
+      if (!("speechSynthesis" in window)) {
+        showToast("Speech synthesis not supported in this browser.", "err");
+        return;
+      }
+      if (activeAudioBtnId === btnId && window.speechSynthesis.speaking) {
+        stopSpeech();
+        return;
+      }
+
+      speechSeqToken++;
+      const token = speechSeqToken;
+      try { window.speechSynthesis.cancel(); } catch (_) {}
+
+      const cleanList = items.map(cleanSpeechText).filter(Boolean);
+      if (!cleanList.length) return;
+
+      const v = getSelectedGermanVoice();
+      setSpeakingVisual(btnId);
+
+      function nextStep(idx) {
+        if (speechSeqToken !== token) return;
+        if (idx >= cleanList.length) {
+          activeUtterance = null;
+          setSpeakingVisual(null);
+          return;
+        }
+        const u = new SpeechSynthesisUtterance(cleanList[idx]);
+        u.lang = "de-DE";
+        if (v) u.voice = v;
+        u.rate = 0.94;
+        u.pitch = 1.0;
+        activeUtterance = u;
+        u.onend = () => {
+          if (speechSeqToken !== token) return;
+          setTimeout(() => nextStep(idx + 1), 220);
+        };
+        u.onerror = () => {
+          if (speechSeqToken === token) {
+            activeUtterance = null;
+            setSpeakingVisual(null);
+          }
+        };
+        try {
+          window.speechSynthesis.speak(u);
+        } catch (_) {
+          setSpeakingVisual(null);
+        }
+      }
+
+      nextStep(0);
+    }
+
+    /* =========================================================================
+       4. QUEUE, FILTERING, PROMPT MIX & SPACED REPETITION
+       ========================================================================= */
+    function shuffle(arr) {
+      const a = [...arr];
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+
+    function getFilteredPool() {
+      return state.cards.filter(c => {
+        if (state.hardOnly && !isCardHard(c.id)) return false;
+        const levelOk = state.selectedLevels.length === 0 ? state.hardOnly : state.selectedLevels.includes(c.level);
+        const packOk = state.selectedPacks.length === 0 ? state.hardOnly : state.selectedPacks.includes(c.deckType);
+        return levelOk && packOk;
+      });
+    }
+
+    function pickPromptModeForCard(card) {
+      if (!card) return "de_en";
+      if (card.deckType === "case_practice") return "case_practice";
+      const enabled = [];
+      if (state.promptModes.de_en) enabled.push("de_en");
+      if (state.promptModes.en_de) enabled.push("en_de");
+      if (state.promptModes.listen) enabled.push("listen");
+      if (!enabled.length) return "de_en";
+      return enabled[Math.floor(Math.random() * enabled.length)];
+    }
+
+    /**
+     * Prepare the top card of the queue (choose prompt mode, reset cloze state, auto-play if Listen).
+     */
+    function prepareCurrentCard(allowAutoPlay = true) {
+      stopSpeech();
+      state.isRevealed = false;
+      state.peekedSpelling = false;
+      state.revealedClozes = new Set();
+
+      const card = state.queue[0];
+      if (!card) return;
+      state.currentPromptMode = pickPromptModeForCard(card);
+
+      if (allowAutoPlay && state.currentPromptMode === "listen" && state.promptModes.listen) {
+        const wordToSpeak = card.pos === "noun" && card.article ? `${card.article} ${card.word}` : card.word;
+        // Slight delay so card DOM mounts before pulsing audio button
+        setTimeout(() => {
+          if (state.queue[0] && state.queue[0].id === card.id && !state.isRevealed && state.currentPromptMode === "listen" && state.promptModes.listen) {
+            speakDE(wordToSpeak, "listen-hero", 1.0, null, true);
+          }
+        }, 120);
+      }
+    }
+
+    function buildQueue(cramAll = false, allowAutoPlay = true) {
+      stopSpeech();
+      state.cramMode = cramAll;
+      const pool = getFilteredPool();
+      const source = cramAll ? pool : pool.filter(c => isCardDue(c.id));
+
+      const learning = shuffle(source.filter(c => getSrs(c.id).status === "learning"));
+      const fresh = shuffle(source.filter(c => getSrs(c.id).status === "new"));
+      const review = shuffle(source.filter(c => {
+        const st = getSrs(c.id).status;
+        return st === "review" || st === "mastered";
+      }));
+
+      state.queue = [...learning, ...fresh, ...review];
+      state.sessionInitialDue = state.queue.length;
+      state.sessionDoneIds = new Set();
+      prepareCurrentCard(allowAutoPlay);
+      renderAll();
+    }
+
+    function toggleLevel(lvl) {
+      const has = state.selectedLevels.includes(lvl);
+      if (has) {
+        if (state.selectedLevels.length === 1 && !state.hardOnly) {
+          showToast("Keep at least one CEFR level active (or enable 🔥 Hard).", "warn");
+          return;
+        }
+        state.selectedLevels = state.selectedLevels.filter(l => l !== lvl);
+      } else {
+        state.selectedLevels = [...state.selectedLevels, lvl];
+      }
+      saveState();
+      buildQueue(false);
+    }
+
+    function togglePack(packKey) {
+      const has = state.selectedPacks.includes(packKey);
+      if (has) {
+        if (state.selectedPacks.length === 1 && !state.hardOnly) {
+          showToast("Keep at least one pack active (or enable 🔥 Hard).", "warn");
+          return;
+        }
+        state.selectedPacks = state.selectedPacks.filter(k => k !== packKey);
+      } else {
+        state.selectedPacks = [...state.selectedPacks, packKey];
+      }
+      saveState();
+      buildQueue(false);
+    }
+
+    function toggleHardFilter() {
+      state.hardOnly = !state.hardOnly;
+      // Restore sensible defaults if turning Hard OFF left levels/packs empty
+      if (!state.hardOnly) {
+        if (!state.selectedLevels.length) state.selectedLevels = ["A2", "B1"];
+        if (!state.selectedPacks.length) state.selectedPacks = ["vocab", "verb_trap", "case_practice"];
+      }
+      saveState();
+      buildQueue(false);
+    }
+
+    function soloAllHardCards() {
+      state.hardOnly = true;
+      state.selectedLevels = [];
+      state.selectedPacks = [];
+      saveState();
+      buildQueue(true);
+    }
+
+    function togglePromptMode(modeKey) {
+      const activeCount = Object.values(state.promptModes).filter(Boolean).length;
+      if (state.promptModes[modeKey] && activeCount <= 1) {
+        showToast("At least one prompt mode must stay enabled.", "warn");
+        return;
+      }
+
+      state.promptModes[modeKey] = !state.promptModes[modeKey];
+      saveState();
+
+      // If turning Listen OFF, stop any active audio immediately
+      if (modeKey === "listen" && !state.promptModes.listen) {
+        stopSpeech();
+      }
+
+      // Re-roll current unflipped card if its active mode was just turned off
+      const card = state.queue[0];
+      if (card && !state.isRevealed && card.deckType !== "case_practice") {
+        if (!state.promptModes[state.currentPromptMode]) {
+          state.currentPromptMode = pickPromptModeForCard(card);
+          state.peekedSpelling = false;
+          if (state.currentPromptMode === "listen" && state.promptModes.listen) {
+            const phrase = card.pos === "noun" && card.article ? `${card.article} ${card.word}` : card.word;
+            setTimeout(() => speakDE(phrase, "listen-hero", 1.0, null, true), 90);
+          }
+        }
+      }
+      renderAll();
+    }
+
+    function shuffleQueue() {
+      if (state.queue.length <= 1) {
+        showToast("Not enough cards in queue to shuffle.");
+        return;
+      }
+      state.queue = shuffle(state.queue);
+      prepareCurrentCard(true);
+      renderAll();
+      showToast(`Shuffled ${state.queue.length} cards`);
+    }
+
+    function flipCard() {
+      if (!state.queue.length || state.isRevealed) return;
+      state.isRevealed = true;
+      renderCard();
+      renderFooter();
+      const stage = document.getElementById("card-stage");
+      if (stage) stage.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function peekSpelling(evt) {
+      if (evt) evt.stopPropagation();
+      state.peekedSpelling = true;
+      renderCard();
+    }
+
+    function toggleHardFlag(cardId, evt = null) {
+      if (evt) evt.stopPropagation();
+      const prev = getSrs(cardId);
+      const currentlyHard = isCardHard(cardId);
+      state.srs[cardId] = { ...prev, manualHard: !currentlyHard };
+      saveState();
+      renderHeader();
+      renderCard();
+      showToast(!currentlyHard ? "Flagged as 🔥 Hard" : "Removed 🔥 Hard flag", !currentlyHard ? "warn" : "");
+    }
+
+    function previewIntervals(cardId) {
+      const r = getSrs(cardId);
+      const goodDays = r.reps === 0 ? 1 : r.reps === 1 ? 2 : 3;
+      const easyDays = r.reps === 0 ? 5 : 7;
+      return { goodDays, easyDays };
+    }
+
+    function rateCard(rating) {
+      if (!state.queue.length || !state.isRevealed) return;
+      stopSpeech();
+
+      const card = state.queue.shift();
+      const prev = getSrs(card.id);
+      const now = Date.now();
+      const { goodDays, easyDays } = previewIntervals(card.id);
+
+      if (rating === "again") {
+        const nextLapses = (prev.lapses || 0) + 1;
+        const hitAutoHard = nextLapses >= 3 && !isCardHard(card.id);
+        state.srs[card.id] = {
+          ...prev,
+          status: "learning",
+          reps: 0,
+          intervalDays: 0,
+          nextDue: now,
+          lapses: nextLapses,
+          manualHard: nextLapses >= 3 && prev.manualHard === false ? null : prev.manualHard
+        };
+        state.streak = 0;
+        const offset = Math.min(state.queue.length, Math.random() < 0.5 ? 2 : 3);
+        state.queue.splice(offset, 0, card);
+        if (hitAutoHard) showToast(`Auto-flagged 🔥 Hard (${nextLapses} misses)`, "warn");
+      } else if (rating === "good") {
+        const nextReps = (prev.reps || 0) + 1;
+        state.srs[card.id] = {
+          ...prev,
+          status: nextReps >= 2 ? "mastered" : "review",
+          reps: nextReps,
+          intervalDays: goodDays,
+          nextDue: now + goodDays * DAY_MS
+        };
+        state.streak = (state.streak || 0) + 1;
+        state.sessionDoneIds.add(card.id);
+      } else if (rating === "easy") {
+        const nextReps = (prev.reps || 0) + 2;
+        state.srs[card.id] = {
+          ...prev,
+          status: "mastered",
+          reps: nextReps,
+          intervalDays: easyDays,
+          nextDue: now + easyDays * DAY_MS
+        };
+        state.streak = (state.streak || 0) + 1;
+        state.sessionDoneIds.add(card.id);
+      }
+
+      saveState();
+      prepareCurrentCard(true);
+      renderAll();
+      const stage = document.getElementById("card-stage");
+      if (stage) stage.scrollTo({ top: 0 });
+    }
+
+    /* =========================================================================
+       5. INTERACTIVE PREPOSITION CLOZE BLANKS
+       ========================================================================= */
+    function toggleClozeMode(evt) {
+      if (evt) evt.stopPropagation();
+      state.clozeEnabled = !state.clozeEnabled;
+      saveState();
+      renderCard();
+    }
+
+    function revealClozeToken(exIdx, tokIdx, evt) {
+      if (evt) evt.stopPropagation();
+      state.revealedClozes.add(`${exIdx}-${tokIdx}`);
+      renderCard();
+    }
+
+    function revealAllClozes(evt) {
+      if (evt) evt.stopPropagation();
+      const card = state.queue[0];
+      if (!card || !Array.isArray(card.examples)) return;
+      card.examples.forEach((ex, exIdx) => {
+        const matches = String(ex.de || "").match(/\[\[[^\]]+\]\]/g) || [];
+        matches.forEach((_, tokIdx) => state.revealedClozes.add(`${exIdx}-${tokIdx}`));
+      });
+      renderCard();
+    }
+
+    function hasAnyUnrevealedCloze(card) {
+      if (!state.clozeEnabled || !card || !Array.isArray(card.examples)) return false;
+      for (let exIdx = 0; exIdx < card.examples.length; exIdx++) {
+        const matches = String(card.examples[exIdx].de || "").match(/\[\[[^\]]+\]\]/g) || [];
+        for (let tokIdx = 0; tokIdx < matches.length; tokIdx++) {
+          if (!state.revealedClozes.has(`${exIdx}-${tokIdx}`)) return true;
+        }
+      }
+      return false;
+    }
+
+    function cardHasClozeTokens(card) {
+      if (!card || !Array.isArray(card.examples)) return false;
+      return card.examples.some(ex => /\[\[[^\]]+\]\]/.test(String(ex.de || "")));
+    }
+
+    /**
+     * Render example German sentence with interactive [[...]] tap-to-reveal blanks.
+     */
+    function renderClozeSentence(text, exIdx) {
+      let tokIdx = 0;
+      return esc(text).replace(/\[\[([^\]]+)\]\]/g, (_, inner) => {
+        const cur = tokIdx++;
+        const key = `${exIdx}-${cur}`;
+        if (state.clozeEnabled && !state.revealedClozes.has(key)) {
+          return `<button type="button" class="cloze-blank" onclick="revealClozeToken(${exIdx}, ${cur}, event)" title="Tap to reveal">___</button>`;
+        }
+        return `<span class="cloze-revealed">${inner}</span>`;
+      });
+    }
+
+    /* =========================================================================
+       6. SAFE RENDER HELPERS & INLINE SVGS
+       ========================================================================= */
+    function esc(s) {
+      return String(s ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function jsArg(s) {
+      return String(s ?? "")
+        .replace(/\\/g, "\\\\")
+        .replace(/'/g, "\\'")
+        .replace(/"/g, "&quot;")
+        .replace(/\r?\n/g, " ");
+    }
+
+    function speakerSvg(size = 16) {
+      return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.15" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0">
+        <path d="M11 5L6 9H3v6h3l5 4V5z"/>
+        <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+        <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+      </svg>`;
+    }
+
+    let toastTimer = null;
+    function showToast(msg, tone = "") {
+      const host = document.getElementById("toast-host");
+      if (!host) return;
+      host.innerHTML = `<div class="toast-pill ${tone}">${esc(msg)}</div>`;
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => { host.innerHTML = ""; }, 2300);
+    }
+
+    /* =========================================================================
+       7. MAIN UI RENDERERS (HEADER, PROMPT MIX, CARD, FOOTER)
+       ========================================================================= */
+    function renderHeader() {
+      document.getElementById("deck-btn-label").textContent = `Deck (${state.cards.length})`;
+
+      // Row 1: CEFR Level Pills
+      LEVELS.forEach(lvl => {
+        const el = document.getElementById(`lvl-${lvl}`);
+        const count = state.cards.filter(c => c.level === lvl).length;
+        const on = state.selectedLevels.includes(lvl);
+        el.className = `lvl-pill ${on ? "on-" + lvl : ""}`;
+        el.setAttribute("aria-pressed", String(on));
+        el.innerHTML = `<span>${lvl}</span><span class="cnt">${count}</span>`;
+      });
+
+      // Row 2: Pack Pills + Hard Pill
+      PACKS.forEach(pk => {
+        const el = document.getElementById(`pack-${pk.key}`);
+        const on = state.selectedPacks.includes(pk.key);
+        el.className = `pack-pill ${on ? "on-" + pk.key : ""}`;
+        el.setAttribute("aria-pressed", String(on));
+        el.textContent = pk.label;
+      });
+
+      const hardCount = getTotalHardCount();
+      const hardBtn = document.getElementById("pack-hard");
+      hardBtn.className = `pack-pill ${state.hardOnly ? "on-hard" : ""}`;
+      hardBtn.setAttribute("aria-pressed", String(state.hardOnly));
+      hardBtn.textContent = `🔥 Hard (${hardCount})`;
+
+      // Meta & Progress Bar
+      const poolLen = getFilteredPool().length;
+      const dueLabel = state.cramMode ? "practice left" : "due";
+      document.getElementById("header-meta").innerHTML =
+        `${state.queue.length} ${dueLabel} · ${poolLen} in filter · <span class="streak">🔥 ${state.streak} streak</span>`;
+
+      const done = state.sessionDoneIds.size;
+      const init = state.sessionInitialDue;
+      const pct = init > 0 ? Math.min(100, Math.round((done / init) * 100)) : 0;
+      document.getElementById("progress-fill").style.width = `${pct}%`;
+
+      // Prompt Mix Bar
+      const pmDe = document.getElementById("pm-de_en");
+      const pmEn = document.getElementById("pm-en_de");
+      const pmLi = document.getElementById("pm-listen");
+
+      pmDe.className = `pm-pill ${state.promptModes.de_en ? "on" : ""}`;
+      pmEn.className = `pm-pill ${state.promptModes.en_de ? "on" : ""}`;
+      pmLi.className = `pm-pill ${state.promptModes.listen ? "on-listen" : "off-listen"}`;
+      pmDe.setAttribute("aria-pressed", String(state.promptModes.de_en));
+      pmEn.setAttribute("aria-pressed", String(state.promptModes.en_de));
+      pmLi.setAttribute("aria-pressed", String(state.promptModes.listen));
+    }
+
+    function renderPackBadge(deckType) {
+      if (deckType === "verb_trap") return `<span class="pill pill-amber">Verb Trap</span>`;
+      if (deckType === "case_practice") return `<span class="pill pill-violet">Case Practice</span>`;
+      return "";
+    }
+
+    function renderHardButton(cardId) {
+      const hard = isCardHard(cardId);
+      const lapses = getSrs(cardId).lapses || 0;
+      const countTxt = lapses > 0 ? ` · ${lapses}x` : "";
+      return `
+        <button type="button" class="hard-toggle-btn ${hard ? "is-hard" : ""}" onclick="toggleHardFlag('${jsArg(cardId)}', event)" title="Toggle Hard flag (H)">
+          <span>🔥</span>
+          <span>${hard ? "Hard" + countTxt : "Flag"}</span>
+        </button>
+      `;
+    }
+
+    function renderValencyBlock(card) {
+      if (!card.valency && !card.trapNote) return "";
+      const isDat = String(card.valency || "").toLowerCase().includes("dat") && !String(card.valency || "").toLowerCase().includes("akk");
+      const pillCls = isDat ? "pill-violet" : "pill-amber";
+
+      return `
+        <section class="section-box valency-box ${isDat ? "dat-tint" : ""}">
+          <div class="section-head">
+            <span class="section-label">Valency &amp; Case Government</span>
+          </div>
+          ${card.valency ? `<div class="valency-callout ${pillCls}">${esc(card.valency)}</div>` : ""}
+          ${card.trapNote ? `
+            <p class="trap-note">
+              <strong>Why English Tricks You</strong>
+              ${esc(card.trapNote)}
+            </p>
+          ` : ""}
+        </section>
+      `;
+    }
+
+    function renderConjugationsBlock(card) {
+      const c = card.conjugations;
+      if (!c || (!c.praesens && !c.praeteritum && !c.perfekt)) return "";
+
+      let perfHtml = esc(c.perfekt || "");
+      if (c.perfekt) {
+        if (c.perfekt.startsWith("ist ")) {
+          perfHtml = `<span class="aux-ist">ist</span> ${esc(c.perfekt.slice(4))}`;
+        } else if (c.perfekt.startsWith("hat ")) {
+          perfHtml = `<span class="aux-hat">hat</span> ${esc(c.perfekt.slice(4))}`;
+        }
+      }
+
+      const forms = [
+        { id: "cf-pres", label: "Präsens (er/sie/es)", raw: c.praesens, html: esc(c.praesens) },
+        { id: "cf-prat", label: "Präteritum", raw: c.praeteritum, html: esc(c.praeteritum) },
+        { id: "cf-perf", label: `Perfekt${c.perfekt && c.perfekt.startsWith("ist ") ? " (sein!)" : ""}`, raw: c.perfekt, html: perfHtml }
+      ].filter(f => f.raw);
+
+      const seqList = [card.word, c.praesens, c.praeteritum, c.perfekt].filter(Boolean);
+      const seqJson = esc(JSON.stringify(seqList));
+
+      return `
+        <section class="section-box">
+          <div class="section-head">
+            <span class="section-label">Verb Conjugations</span>
+            <div class="badge-row">
+              ${card.isIrregular ? `<span class="pill pill-amber">Irregular</span>` : `<span class="pill pill-emerald">Regular</span>`}
+              ${c.stemChange ? `<span class="pill pill-cyan">${esc(c.stemChange)}</span>` : ""}
+            </div>
+          </div>
+
+          <div class="conj-grid">
+            ${forms.map(f => `
+              <button type="button" class="conj-btn" data-audio-btn="${f.id}" onclick="speakDE('${jsArg(f.raw)}', '${f.id}', 1.0, event)">
+                <div>
+                  <div class="conj-kicker">${esc(f.label)}</div>
+                  <div class="conj-val">${f.html}</div>
+                </div>
+                <span style="color:var(--cyan);display:flex;">${speakerSvg(16)}</span>
+              </button>
+            `).join("")}
+          </div>
+
+          <button type="button" class="play-all-btn" data-audio-btn="cf-all" onclick='speakSequenceDE(${seqJson}, "cf-all", event)'>
+            ${speakerSvg(15)}
+            <span>Play All Forms</span>
+          </button>
+        </section>
+      `;
+    }
+
+    function renderExamplesBlock(card, headingText = "Example Sentences") {
+      const examples = Array.isArray(card.examples) ? card.examples.filter(e => e && e.de) : [];
+      if (!examples.length) return "";
+      const hasCloze = cardHasClozeTokens(card);
+      const hasHidden = hasAnyUnrevealedCloze(card);
+
+      return `
+        <section class="examples-wrap">
+          <div class="section-head">
+            <span class="section-label">${esc(headingText)}</span>
+            ${hasCloze ? `
+              <div class="ex-controls">
+                ${hasHidden ? `<button type="button" class="tiny-pill-btn reveal" onclick="revealAllClozes(event)">Reveal all</button>` : ""}
+                <button type="button" class="tiny-pill-btn ${state.clozeEnabled ? "active" : ""}" onclick="toggleClozeMode(event)">
+                  Cloze: ${state.clozeEnabled ? "ON" : "OFF"}
+                </button>
+              </div>
+            ` : ""}
+          </div>
+
+          ${examples.map((ex, idx) => `
+            <div class="example-item">
+              <div class="ex-body">
+                <p class="ex-de">${renderClozeSentence(ex.de, idx)}</p>
+                ${ex.en ? `<p class="ex-en">${esc(ex.en)}</p>` : ""}
+              </div>
+              <button type="button" class="audio-sq" data-audio-btn="ex-${idx}" onclick="speakDE('${jsArg(ex.de)}', 'ex-${idx}', 1.0, event)" aria-label="Listen to example">
+                ${speakerSvg(15)}
+              </button>
+            </div>
+          `).join("")}
+        </section>
+      `;
+    }
+
+    /**
+     * Render Front of Active Card according to currentPromptMode.
+     */
+    function renderFrontCard(card) {
+      const mode = state.currentPromptMode;
+      const posLabel = POS_LABELS[card.pos] || card.pos || "Word";
+      const fullSpeakWord = card.pos === "noun" && card.article ? `${card.article} ${card.word}` : card.word;
+
+      // 1) Case Practice Front (always sentence challenge with ___ blanks)
+      if (mode === "case_practice") {
+        const sentenceHtml = esc(card.word).replace(/_{2,}/g, `<span class="case-blank">___</span>`);
+        return `
+          <div class="card card-front" role="button" tabindex="0" onclick="flipCard()">
+            <div class="card-top-row">
+              <div class="badge-row">
+                <span class="pill pill-${card.level}">${esc(card.level)}</span>
+                <span class="pill pill-violet">${esc(card.promptHint || "Preposition + Case")}</span>
+              </div>
+              ${renderHardButton(card.id)}
+            </div>
+
+            <div class="case-front-wrap">
+              <div class="front-kicker">Complete in German</div>
+              <p class="case-sentence">${sentenceHtml}</p>
+              <p class="case-en-ctx">“${esc(card.english)}”</p>
+            </div>
+
+            <div class="tap-hint">Fill the blank in your head · Tap card to check answer</div>
+          </div>
+        `;
+      }
+
+      // 2) Audio-First (Blind Listening) Front
+      if (mode === "listen") {
+        return `
+          <div class="card card-front" role="button" tabindex="0" onclick="flipCard()">
+            <div class="card-top-row">
+              <div class="badge-row">
+                <span class="pill pill-${card.level}">${esc(card.level)}</span>
+                <span class="pill pill-cyan">🔊 Blind Listen</span>
+                ${renderPackBadge(card.deckType)}
+              </div>
+              ${renderHardButton(card.id)}
+            </div>
+
+            <div class="front-center">
+              <button type="button" class="listen-hero-btn" data-audio-btn="listen-hero" onclick="speakDE('${jsArg(fullSpeakWord)}', 'listen-hero', 1.0, event)">
+                ${speakerSvg(32)}
+                <span>Play Again</span>
+              </button>
+
+              <div class="audio-row">
+                <button type="button" class="audio-btn slow" data-audio-btn="listen-slow" onclick="speakDE('${jsArg(fullSpeakWord)}', 'listen-slow', 0.7, event)">
+                  <span>🐢 0.7x Slow</span>
+                </button>
+                ${!state.peekedSpelling ? `
+                  <button type="button" class="peek-btn" onclick="peekSpelling(event)">Peek spelling</button>
+                ` : ""}
+              </div>
+
+              ${state.peekedSpelling ? `<div class="peek-word-box">${esc(card.word)}</div>` : ""}
+            </div>
+
+            <div class="tap-hint">Listen &amp; recall meaning${card.deckType === "verb_trap" ? " + preposition/case" : ""} · Tap card to reveal</div>
+          </div>
+        `;
+      }
+
+      // 3) EN -> DE Recall Front (No German audio on front!)
+      if (mode === "en_de") {
+        return `
+          <div class="card card-front" role="button" tabindex="0" onclick="flipCard()">
+            <div class="card-top-row">
+              <div class="badge-row">
+                <span class="pill pill-${card.level}">${esc(card.level)}</span>
+                <span class="pill">${esc(posLabel)}</span>
+                ${renderPackBadge(card.deckType)}
+              </div>
+              ${renderHardButton(card.id)}
+            </div>
+
+            <div class="front-center">
+              <div class="front-kicker">Translate to German</div>
+              <h2 class="front-en-word">${esc(card.english)}</h2>
+              ${card.deckType === "verb_trap" ? `<p class="front-sub-note">Recall the exact preposition &amp; case!</p>` : ""}
+              ${card.pos === "noun" ? `<span class="pill">Include der / die / das</span>` : ""}
+            </div>
+
+            <div class="tap-hint">Produce the German aloud · Tap card to check</div>
+          </div>
+        `;
+      }
+
+      // 4) DE -> EN Front (hide noun article to test gender recall)
+      return `
+        <div class="card card-front" role="button" tabindex="0" onclick="flipCard()">
+          <div class="card-top-row">
+            <div class="badge-row">
+              <span class="pill pill-${card.level}">${esc(card.level)}</span>
+              <span class="pill">${esc(posLabel)}</span>
+              ${renderPackBadge(card.deckType)}
+            </div>
+            ${renderHardButton(card.id)}
+          </div>
+
+          <div class="front-center">
+            <h2 class="front-word">${esc(card.word)}</h2>
+            <div class="audio-row">
+              <button type="button" class="audio-btn primary" data-audio-btn="front-1x" onclick="speakDE('${jsArg(card.word)}', 'front-1x', 1.0, event)">
+                ${speakerSvg(16)}
+                <span>1.0x</span>
+              </button>
+              <button type="button" class="audio-btn slow" data-audio-btn="front-slow" onclick="speakDE('${jsArg(card.word)}', 'front-slow', 0.7, event)">
+                <span>🐢 0.7x</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="tap-hint">${card.pos === "noun" ? "Recall gender + meaning" : "Recall meaning & usage"} · Tap card to reveal</div>
+        </div>
+      `;
+    }
+
+    /**
+     * Render Back of Active Card.
+     */
+    function renderBackCard(card) {
+      // Case Practice Back
+      if (card.deckType === "case_practice") {
+        const fullSent = card.fullSentence || card.word;
+        let highlightedFull = esc(fullSent);
+        if (card.answer) {
+          const cleanAns = card.answer.replace(/\s*…\s*/g, ".*?");
+          if (!card.answer.includes("…") && fullSent.includes(card.answer)) {
+            highlightedFull = esc(fullSent).replace(esc(card.answer), `<span class="ans-hl">${esc(card.answer)}</span>`);
+          }
+        }
+
+        return `
+          <article class="card card-back">
+            <div class="card-top-row">
+              <div class="badge-row">
+                <span class="pill pill-${card.level}">${esc(card.level)}</span>
+                <span class="pill pill-violet">Case Practice</span>
+              </div>
+              ${renderHardButton(card.id)}
+            </div>
+
+            <section class="section-box case-answer-box">
+              <div class="section-head">
+                <span class="section-label">Missing Answer</span>
+                ${card.answer ? `<span class="pill pill-emerald" style="font-size:12px;">${esc(card.answer)}</span>` : ""}
+              </div>
+              <p class="case-full-de">${highlightedFull}</p>
+              <p class="ex-en" style="margin:0;">${esc(card.english)}</p>
+              <div class="audio-row" style="justify-content:stretch;margin-top:4px;">
+                <button type="button" class="audio-btn primary" style="flex:1;" data-audio-btn="back-1x" onclick="speakDE('${jsArg(fullSent)}', 'back-1x', 1.0, event)">
+                  ${speakerSvg(16)}
+                  <span>Listen (1.0x)</span>
+                </button>
+                <button type="button" class="audio-btn slow" data-audio-btn="back-slow" onclick="speakDE('${jsArg(fullSent)}', 'back-slow', 0.7, event)">
+                  <span>🐢 0.7x</span>
+                </button>
+              </div>
+            </section>
+
+            ${renderValencyBlock(card)}
+            ${renderExamplesBlock(card, "Contrast Examples")}
+          </article>
+        `;
+      }
+
+      // Vocab & Verb Trap Back
+      const isNoun = card.pos === "noun";
+      const art = isNoun ? String(card.article || "").toLowerCase() : "";
+      const artCls = art === "der" ? "art-der" : art === "die" ? "art-die" : art === "das" ? "art-das" : "";
+      const headSpeak = isNoun && card.article ? `${card.article} ${card.word}` : card.word;
+
+      return `
+        <article class="card card-back">
+          <div class="card-top-row">
+            <div class="badge-row">
+              <span class="pill pill-${card.level}">${esc(card.level)}</span>
+              <span class="pill">${esc(POS_LABELS[card.pos] || card.pos)}</span>
+              ${renderPackBadge(card.deckType)}
+            </div>
+            ${renderHardButton(card.id)}
+          </div>
+
+          <div class="back-head">
+            <div style="min-width:0;flex:1;">
+              <h2 class="back-word">${isNoun && card.article ? `<span class="${artCls}">${esc(card.article)}</span> ` : ""}${esc(card.word)}</h2>
+              ${isNoun && card.plural ? `
+                <div class="back-plural-row">
+                  <span class="pill">Plural: ${esc(card.plural)}</span>
+                </div>
+              ` : ""}
+              <p class="back-english">${esc(card.english)}</p>
+            </div>
+            <div style="display:flex;gap:5px;flex-shrink:0;">
+              <button type="button" class="audio-sq" data-audio-btn="back-1x" onclick="speakDE('${jsArg(headSpeak)}', 'back-1x', 1.0, event)" aria-label="Listen 1.0x">
+                ${speakerSvg(16)}
+              </button>
+              <button type="button" class="audio-sq slow-sq" data-audio-btn="back-slow" onclick="speakDE('${jsArg(headSpeak)}', 'back-slow', 0.7, event)" aria-label="Listen 0.7x">
+                0.7x
+              </button>
+            </div>
+          </div>
+
+          ${renderValencyBlock(card)}
+          ${renderConjugationsBlock(card)}
+          ${renderExamplesBlock(card, "Example Sentences")}
+        </article>
+      `;
+    }
+
+    function renderCard() {
+      const stage = document.getElementById("card-stage");
+      if (!stage) return;
+
+      const pool = getFilteredPool();
+
+      if (pool.length === 0) {
+        const totalHard = getTotalHardCount();
+        if (state.hardOnly) {
+          stage.innerHTML = `
+            <div class="card state-card">
+              <div class="state-icon" style="color:var(--orange);">🔥</div>
+              <h2 class="state-title">${totalHard === 0 ? "No Hard Cards Yet" : "No Hard Cards in Current Filter"}</h2>
+              <p class="state-desc">${
+                totalHard === 0
+                  ? "Cards automatically appear here after 3 misses, or tap 🔥 Flag on any card to pin it."
+                  : `You have ${totalHard} Hard card${totalHard === 1 ? "" : "s"} in other levels or packs.`
+              }</p>
+              ${totalHard > 0 ? `<button type="button" class="btn-primary-full" onclick="soloAllHardCards()">Drill All ${totalHard} Hard Cards</button>` : ""}
+              <button type="button" class="btn-secondary-full" onclick="toggleHardFilter()">Turn Off 🔥 Hard Filter</button>
+            </div>
+          `;
+        } else {
+          stage.innerHTML = `
+            <div class="card state-card">
+              <div class="state-icon" style="color:var(--amber);">✦</div>
+              <h2 class="state-title">No Cards Match Filter</h2>
+              <p class="state-desc">Enable another CEFR level or pack above, or add your own custom cards in Deck Manager.</p>
+              <button type="button" class="btn-primary-full" onclick="openModal('add')">+ Add Custom Card</button>
+            </div>
+          `;
+        }
+        return;
+      }
+
+      if (state.queue.length === 0) {
+        const mastered = pool.filter(c => getSrs(c.id).status === "mastered").length;
+        stage.innerHTML = `
+          <div class="card state-card">
+            <div class="state-icon">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <h2 class="state-title">${state.cramMode ? "Practice Round Complete!" : "All Caught Up!"}</h2>
+            <p class="state-desc">All due cards in your current filter are scheduled for future review.</p>
+            <div class="stat-pair">
+              <div class="stat-tile">
+                <div class="stat-val" style="color:var(--emerald);">${mastered}/${pool.length}</div>
+                <div class="stat-lbl">Mastered</div>
+              </div>
+              <div class="stat-tile">
+                <div class="stat-val" style="color:var(--amber);">🔥 ${state.streak}</div>
+                <div class="stat-lbl">Current Streak</div>
+              </div>
+            </div>
+            <button type="button" class="btn-primary-full" onclick="buildQueue(true)">
+              Practice All ${pool.length} Cards Anyway
+            </button>
+            <button type="button" class="btn-secondary-full" onclick="openModal('add')">
+              + Add or Import More Cards
+            </button>
+          </div>
+        `;
+        return;
+      }
+
+      const card = state.queue[0];
+      stage.innerHTML = state.isRevealed ? renderBackCard(card) : renderFrontCard(card);
+    }
+
+    function renderFooter() {
+      const footer = document.getElementById("thumb-footer");
+      if (!footer) return;
+
+      if (!state.queue.length) {
+        footer.innerHTML = `
+          <button type="button" class="btn-secondary-full" onclick="buildQueue(true)">
+            Start Extra Practice Round
+          </button>
+        `;
+        return;
+      }
+
+      if (!state.isRevealed) {
+        footer.innerHTML = `
+          <button type="button" class="flip-btn" onclick="flipCard()">Show Answer</button>
+          <div class="kbd-bar">Space / Enter: Flip · R: Audio 1.0x · S: Slow 0.7x · H: Toggle 🔥 Hard</div>
+        `;
+        return;
+      }
+
+      const { goodDays, easyDays } = previewIntervals(state.queue[0].id);
+      footer.innerHTML = `
+        <div class="srs-grid">
+          <button type="button" class="srs-btn srs-again" onclick="rateCard('again')">
+            <span class="s-main">Again</span>
+            <span class="s-sub">Requeue</span>
+          </button>
+          <button type="button" class="srs-btn srs-good" onclick="rateCard('good')">
+            <span class="s-main">Good</span>
+            <span class="s-sub">+${goodDays}d</span>
+          </button>
+          <button type="button" class="srs-btn srs-easy" onclick="rateCard('easy')">
+            <span class="s-main">Easy</span>
+            <span class="s-sub">+${easyDays}d</span>
+          </button>
+        </div>
+        <div class="kbd-bar">1: Again · 2: Good · 3: Easy · R: Audio 1.0x · S: Slow 0.7x · H: Toggle 🔥 Hard</div>
+      `;
+    }
+
+    function renderAll() {
+      renderHeader();
+      renderCard();
+      renderFooter();
+    }
+
+    /* =========================================================================
+       8. 4-TAB DECK & CUSTOM CARD MANAGER MODAL
+       ========================================================================= */
+    function openModal(tab = "add") {
+      stopSpeech();
+      state.modalTab = tab;
+      if (tab !== "add") state.editingCardId = null;
+      state.armedDeleteId = null;
+      state.armedResetProgress = false;
+      state.armedRestoreDefaults = false;
+      refreshGermanVoices();
+      document.getElementById("deck-modal").classList.remove("hidden");
+      renderModalBody();
+    }
+
+    function closeModal() {
+      document.getElementById("deck-modal").classList.add("hidden");
+      state.editingCardId = null;
+      state.armedDeleteId = null;
+      state.armedResetProgress = false;
+      state.armedRestoreDefaults = false;
+    }
+
+    function handleBackdropClick(e) {
+      if (e.target.id === "deck-modal") closeModal();
+    }
+
+    function switchModalTab(tab) {
+      state.modalTab = tab;
+      if (tab !== "add") state.editingCardId = null;
+      state.armedDeleteId = null;
+      state.armedResetProgress = false;
+      state.armedRestoreDefaults = false;
+      if (tab === "add" && !state.editingCardId) {
+        state.formExamples = [{ de: "", en: "" }, { de: "", en: "" }];
+      }
+      renderModalBody();
+    }
+
+    /* --- TAB 1: ADD / EDIT CUSTOM CARD --- */
+    let formDraft = null;
+
+    function resetFormDraft(card = null) {
+      if (card) {
+        formDraft = {
+          id: card.id,
+          deckType: card.deckType || "vocab",
+          level: card.level || "B1",
+          pos: card.pos || (card.deckType === "case_practice" ? "case_practice" : "verb"),
+          word: card.word || "",
+          english: card.english || "",
+          article: card.article || "der",
+          plural: card.plural || "",
+          isIrregular: Boolean(card.isIrregular),
+          praesens: (card.conjugations && card.conjugations.praesens) || "",
+          praeteritum: (card.conjugations && card.conjugations.praeteritum) || "",
+          perfekt: (card.conjugations && card.conjugations.perfekt) || "",
+          stemChange: (card.conjugations && card.conjugations.stemChange) || "",
+          valency: card.valency || "",
+          trapNote: card.trapNote || "",
+          answer: card.answer || "",
+          fullSentence: card.fullSentence || "",
+          promptHint: card.promptHint || "Preposition + Case",
+          examples: Array.isArray(card.examples) && card.examples.length
+            ? card.examples.map(e => ({ de: e.de || "", en: e.en || "" }))
+            : [{ de: "", en: "" }, { de: "", en: "" }]
+        };
+      } else {
+        formDraft = {
+          id: "",
+          deckType: "vocab",
+          level: "B1",
+          pos: "verb",
+          word: "",
+          english: "",
+          article: "der",
+          plural: "",
+          isIrregular: false,
+          praesens: "",
+          praeteritum: "",
+          perfekt: "",
+          stemChange: "",
+          valency: "",
+          trapNote: "",
+          answer: "",
+          fullSentence: "",
+          promptHint: "Preposition + Case",
+          examples: [{ de: "", en: "" }, { de: "", en: "" }]
+        };
+      }
+    }
+
+    function syncDraftFromDom() {
+      if (!formDraft) return;
+      const g = id => {
+        const el = document.getElementById(id);
+        return el ? el.value : null;
+      };
+      const dt = g("f-deckType"); if (dt !== null) formDraft.deckType = dt;
+      const lv = g("f-level"); if (lv !== null) formDraft.level = lv;
+      const ps = g("f-pos"); if (ps !== null) formDraft.pos = ps;
+      const wd = g("f-word"); if (wd !== null) formDraft.word = wd;
+      const en = g("f-english"); if (en !== null) formDraft.english = en;
+      const ar = g("f-article"); if (ar !== null) formDraft.article = ar;
+      const pl = g("f-plural"); if (pl !== null) formDraft.plural = pl;
+      const irrEl = document.getElementById("f-irregular");
+      if (irrEl) formDraft.isIrregular = irrEl.checked;
+      const pr = g("f-praesens"); if (pr !== null) formDraft.praesens = pr;
+      const pt = g("f-praeteritum"); if (pt !== null) formDraft.praeteritum = pt;
+      const pf = g("f-perfekt"); if (pf !== null) formDraft.perfekt = pf;
+      const sc = g("f-stemChange"); if (sc !== null) formDraft.stemChange = sc;
+      const vl = g("f-valency"); if (vl !== null) formDraft.valency = vl;
+      const tn = g("f-trapNote"); if (tn !== null) formDraft.trapNote = tn;
+      const an = g("f-answer"); if (an !== null) formDraft.answer = an;
+      const fs = g("f-fullSentence"); if (fs !== null) formDraft.fullSentence = fs;
+      const ph = g("f-promptHint"); if (ph !== null) formDraft.promptHint = ph;
+
+      formDraft.examples = formDraft.examples.map((ex, i) => ({
+        de: g(`f-ex-de-${i}`) ?? ex.de,
+        en: g(`f-ex-en-${i}`) ?? ex.en
+      }));
+    }
+
+    function onFormDeckTypeChange() {
+      syncDraftFromDom();
+      if (formDraft.deckType === "case_practice") {
+        formDraft.pos = "case_practice";
+      } else if (formDraft.deckType === "verb_trap") {
+        formDraft.pos = "verb";
+      } else if (formDraft.pos === "case_practice") {
+        formDraft.pos = "noun";
+      }
+      renderModalBody();
+    }
+
+    function onFormPosChange() {
+      syncDraftFromDom();
+      renderModalBody();
+    }
+
+    function addExampleFormRow() {
+      syncDraftFromDom();
+      formDraft.examples.push({ de: "", en: "" });
+      renderModalBody();
+    }
+
+    function removeExampleFormRow(idx) {
+      syncDraftFromDom();
+      if (formDraft.examples.length <= 1) return;
+      formDraft.examples.splice(idx, 1);
+      renderModalBody();
+    }
+
+    function startEditCard(cardId) {
+      const found = state.cards.find(c => c.id === cardId);
+      if (!found) return;
+      state.editingCardId = cardId;
+      state.modalTab = "add";
+      resetFormDraft(found);
+      renderModalBody();
+    }
+
+    function cancelEditCard() {
+      state.editingCardId = null;
+      resetFormDraft(null);
+      renderModalBody();
+    }
+
+    function saveCustomCard(evt) {
+      evt.preventDefault();
+      syncDraftFromDom();
+      const fb = document.getElementById("form-feedback");
+
+      const word = formDraft.word.trim();
+      const english = formDraft.english.trim();
+      if (!word || !english) {
+        if (fb) fb.innerHTML = `<div class="feedback-msg feedback-err">German word / sentence and English meaning are required.</div>`;
+        return;
+      }
+
+      const isCase = formDraft.deckType === "case_practice";
+      const isNoun = !isCase && formDraft.pos === "noun";
+      const isVerb = !isCase && (formDraft.pos === "verb" || formDraft.deckType === "verb_trap");
+
+      if (isCase && (!formDraft.answer.trim() || !formDraft.fullSentence.trim())) {
+        if (fb) fb.innerHTML = `<div class="feedback-msg feedback-err">Case Practice cards require both Missing Answer and Full Corrected Sentence.</div>`;
+        return;
+      }
+
+      const cleanExamples = formDraft.examples
+        .map(e => ({ de: e.de.trim(), en: e.en.trim() }))
+        .filter(e => e.de);
+
+      const hasConj = isVerb && (formDraft.praesens.trim() || formDraft.praeteritum.trim() || formDraft.perfekt.trim());
+      const slug = word.toLowerCase().replace(/[^a-z0-9äöüß]+/g, "-").replace(/^-|-$/g, "").slice(0, 28) || "card";
+      const id = state.editingCardId || `${formDraft.level.toLowerCase()}-${slug}-${Date.now().toString(36).slice(-4)}`;
+
+      const cardObj = {
+        id,
+        level: formDraft.level,
+        deckType: formDraft.deckType,
+        pos: isCase ? "case_practice" : formDraft.pos,
+        word,
+        english,
+        article: isNoun ? formDraft.article : null,
+        plural: isNoun && formDraft.plural.trim() ? formDraft.plural.trim() : null,
+        isIrregular: isVerb ? Boolean(formDraft.isIrregular) : false,
+        conjugations: hasConj ? {
+          praesens: formDraft.praesens.trim() || null,
+          praeteritum: formDraft.praeteritum.trim() || null,
+          perfekt: formDraft.perfekt.trim() || null,
+          stemChange: formDraft.stemChange.trim() || null
+        } : null,
+        valency: formDraft.valency.trim() || null,
+        trapNote: formDraft.trapNote.trim() || null,
+        answer: isCase ? formDraft.answer.trim() : null,
+        fullSentence: isCase ? formDraft.fullSentence.trim() : null,
+        promptHint: isCase ? (formDraft.promptHint.trim() || "Preposition + Case") : null,
+        examples: cleanExamples
+      };
+
+      if (state.editingCardId) {
+        const idx = state.cards.findIndex(c => c.id === state.editingCardId);
+        if (idx >= 0) state.cards[idx] = cardObj;
+        showToast(`Updated "${cardObj.word}"`, "ok");
+      } else {
+        state.cards.unshift(cardObj);
+        showToast(`Added "${cardObj.word}" to deck`, "ok");
+      }
+
+      state.editingCardId = null;
+      resetFormDraft(null);
+      saveState();
+      buildQueue(false, false);
+      closeModal();
+    }
+
+    /* --- TAB 2: BROWSE, SEARCH, EDIT, DELETE --- */
+    function onBrowseSearch(val) {
+      state.browseSearch = val;
+      renderBrowseListOnly();
+    }
+
+    function deleteCard(cardId) {
+      if (state.armedDeleteId !== cardId) {
+        state.armedDeleteId = cardId;
+        renderBrowseListOnly();
+        return;
+      }
+      state.cards = state.cards.filter(c => c.id !== cardId);
+      delete state.srs[cardId];
+      state.armedDeleteId = null;
+      saveState();
+      buildQueue(false, false);
+      renderModalBody();
+      showToast("Card deleted", "warn");
+    }
+
+    function renderBrowseListOnly() {
+      const container = document.getElementById("browse-list-host");
+      if (!container) return;
+      const q = state.browseSearch.trim().toLowerCase();
+      const filtered = state.cards.filter(c => {
+        if (!q) return true;
+        return (
+          (c.word || "").toLowerCase().includes(q) ||
+          (c.english || "").toLowerCase().includes(q) ||
+          (c.level || "").toLowerCase().includes(q) ||
+          (c.deckType || "").toLowerCase().includes(q) ||
+          (c.valency || "").toLowerCase().includes(q)
+        );
+      });
+
+      if (!filtered.length) {
+        container.innerHTML = `<div style="text-align:center;padding:24px 8px;font-size:12.5px;color:var(--text-muted);">No cards match "${esc(state.browseSearch)}".</div>`;
+        return;
+      }
+
+      container.innerHTML = filtered.map(c => {
+        const hard = isCardHard(c.id);
+        const armed = state.armedDeleteId === c.id;
+        return `
+          <div class="browse-card">
+            <div class="browse-info">
+              <div class="badge-row">
+                <span class="pill pill-${c.level}">${esc(c.level)}</span>
+                <span class="pill">${esc(c.deckType === "verb_trap" ? "Verb Trap" : c.deckType === "case_practice" ? "Case" : POS_LABELS[c.pos] || c.pos)}</span>
+                ${hard ? `<span class="pill pill-orange">🔥 Hard</span>` : ""}
+              </div>
+              <div class="browse-word">${c.pos === "noun" && c.article ? `${esc(c.article)} ` : ""}${esc(c.word)}</div>
+              <p class="browse-en">${esc(c.english)}</p>
+            </div>
+            <div class="browse-actions">
+              <button type="button" class="sm-act-btn" onclick="startEditCard('${jsArg(c.id)}')">Edit</button>
+              <button type="button" class="sm-act-btn ${armed ? "danger-armed" : "danger"}" onclick="deleteCard('${jsArg(c.id)}')">${armed ? "Confirm?" : "Del"}</button>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    /* --- TAB 3: IMPORT / EXPORT / RESET --- */
+    function copyText(text, toastMsg) {
+      try {
+        const ta = document.createElement("textarea");
+        ta.value = text;
+        ta.setAttribute("readonly", "");
+        ta.style.position = "fixed";
+        ta.style.left = "-9999px";
+        document.body.appendChild(ta);
+        ta.focus();
+        ta.select();
+        const ok = document.execCommand("copy");
+        document.body.removeChild(ta);
+        if (ok) {
+          showToast(toastMsg || "Copied!", "ok");
+          return;
+        }
+      } catch (_) {}
+
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text)
+          .then(() => showToast(toastMsg || "Copied!", "ok"))
+          .catch(() => showToast("Copy blocked — copy manually.", "err"));
+      } else {
+        showToast("Copy blocked — copy manually.", "err");
+      }
+    }
+
+    function downloadDeckJson() {
+      const payload = JSON.stringify(state.cards, null, 2);
+      try {
+        const blob = new Blob([payload], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "wortflow-deck.json";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+        showToast("Downloaded wortflow-deck.json", "ok");
+      } catch (_) {
+        copyText(payload, "Copied deck JSON!");
+      }
+    }
+
+    function handleJsonFileUpload(e) {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        const ta = document.getElementById("io-textarea");
+        if (ta) ta.value = String(reader.result || "");
+        const fb = document.getElementById("io-feedback");
+        if (fb) fb.innerHTML = `<div class="feedback-msg feedback-ok">Loaded "${esc(file.name)}". Tap Merge or Replace All below.</div>`;
+      };
+      reader.onerror = () => showToast("Failed to read file.", "err");
+      reader.readAsText(file);
+    }
+
+    /**
+     * Validate and import JSON array OR { cards: [...] } object (supports DeepSeek JSON mode!).
+     */
+    function importJsonDeck(replaceAll = false) {
+      const ta = document.getElementById("io-textarea");
+      const fb = document.getElementById("io-feedback");
+      if (!ta || !fb) return;
+
+      try {
+        const parsed = JSON.parse(ta.value);
+        let arr = null;
+        if (Array.isArray(parsed)) {
+          arr = parsed;
+        } else if (parsed && Array.isArray(parsed.cards)) {
+          arr = parsed.cards;
+        }
+
+        if (!arr || !arr.length) {
+          fb.innerHTML = `<div class="feedback-msg feedback-err">Expected a non-empty JSON array <code>[...]</code> or <code>{"cards": [...]}</code>.</div>`;
+          return;
+        }
+
+        const validDeckTypes = ["vocab", "verb_trap", "case_practice"];
+        const normalized = [];
+
+        for (let i = 0; i < arr.length; i++) {
+          const it = arr[i];
+          if (!it || typeof it !== "object" || !it.word || !it.english) {
+            fb.innerHTML = `<div class="feedback-msg feedback-err">Card #${i + 1} is missing required "word" or "english" field.</div>`;
+            return;
+          }
+          const level = String(it.level || "B1").toUpperCase();
+          if (!LEVELS.includes(level)) {
+            fb.innerHTML = `<div class="feedback-msg feedback-err">Card #${i + 1} has invalid level "${esc(level)}". Allowed: A1, A2, B1, B2.</div>`;
+            return;
+          }
+          const deckType = validDeckTypes.includes(it.deckType) ? it.deckType : "vocab";
+          const id = String(it.id || `${level.toLowerCase()}-${String(it.word).toLowerCase().replace(/[^a-z0-9äöüß]+/g, "-").slice(0, 26)}-${i}`);
+
+          normalized.push({
+            id,
+            level,
+            deckType,
+            pos: it.pos || (deckType === "case_practice" ? "case_practice" : "noun"),
+            word: String(it.word).trim(),
+            english: String(it.english).trim(),
+            article: it.article || null,
+            plural: it.plural || null,
+            isIrregular: Boolean(it.isIrregular),
+            conjugations: it.conjugations && typeof it.conjugations === "object" ? {
+              praesens: it.conjugations.praesens || null,
+              praeteritum: it.conjugations.praeteritum || null,
+              perfekt: it.conjugations.perfekt || null,
+              stemChange: it.conjugations.stemChange || null
+            } : null,
+            valency: it.valency || null,
+            trapNote: it.trapNote || null,
+            answer: it.answer || null,
+            fullSentence: it.fullSentence || null,
+            promptHint: it.promptHint || null,
+            examples: Array.isArray(it.examples) ? it.examples.filter(e => e && e.de).map(e => ({ de: String(e.de), en: String(e.en || "") })) : []
+          });
+        }
+
+        if (replaceAll) {
+          state.cards = normalized;
+        } else {
+          const byId = new Map(state.cards.map(c => [c.id, c]));
+          normalized.forEach(c => byId.set(c.id, c));
+          state.cards = Array.from(byId.values());
+        }
+
+        saveState();
+        buildQueue(false, false);
+        closeModal();
+        showToast(`${replaceAll ? "Replaced deck" : "Merged cards"} (${state.cards.length} total)`, "ok");
+      } catch (err) {
+        fb.innerHTML = `<div class="feedback-msg feedback-err">Invalid JSON: ${esc(err.message)}</div>`;
+      }
+    }
+
+    function handleResetProgress() {
+      if (!state.armedResetProgress) {
+        state.armedResetProgress = true;
+        renderModalBody();
+        return;
+      }
+      state.srs = {};
+      state.streak = 0;
+      state.armedResetProgress = false;
+      saveState();
+      buildQueue(false, false);
+      renderModalBody();
+      showToast("Progress, streaks & Hard flags reset", "ok");
+    }
+
+    function handleRestoreDefaultDeck() {
+      if (!state.armedRestoreDefaults) {
+        state.armedRestoreDefaults = true;
+        renderModalBody();
+        return;
+      }
+      state.cards = JSON.parse(JSON.stringify(DEFAULT_CARDS));
+      state.armedRestoreDefaults = false;
+      saveState();
+      buildQueue(false, false);
+      renderModalBody();
+      showToast("Restored 36 default starter cards", "ok");
+    }
+
+    /* --- TAB 4: VOICE SELECTOR --- */
+    function onVoiceSelectChange(val) {
+      state.preferredVoiceName = val;
+      saveState();
+      showToast(val ? `Voice set: ${val}` : "Voice set to Auto (de-DE)", "ok");
+    }
+
+    /* --- RENDER MODAL CONTENT --- */
+    function renderModalBody() {
+      document.getElementById("modal-title").textContent =
+        state.modalTab === "add" && state.editingCardId ? "Edit Card" : "Deck Manager";
+
+      document.getElementById("mtab-add").textContent = state.editingCardId ? "Edit Card" : "+ Add Card";
+      document.getElementById("mtab-browse").textContent = `Browse (${state.cards.length})`;
+
+      ["add", "browse", "io", "voice"].forEach(t => {
+        const b = document.getElementById(`mtab-${t}`);
+        if (b) b.className = `mtab-btn ${state.modalTab === t ? "active" : ""}`;
+      });
+
+      const body = document.getElementById("modal-body");
+      if (!body) return;
+
+      /* TAB 1: + ADD / EDIT CARD */
+      if (state.modalTab === "add") {
+        if (!formDraft) resetFormDraft(null);
+        const isCase = formDraft.deckType === "case_practice";
+        const isNoun = !isCase && formDraft.pos === "noun";
+        const isVerb = !isCase && (formDraft.pos === "verb" || formDraft.deckType === "verb_trap");
+
+        body.innerHTML = `
+          <form onsubmit="saveCustomCard(event)" style="display:flex;flex-direction:column;gap:11px;">
+            <div class="form-grid-3">
+              <div class="field-group">
+                <label class="field-label" for="f-deckType">Pack</label>
+                <select id="f-deckType" class="select-ctrl" onchange="onFormDeckTypeChange()">
+                  <option value="vocab" ${formDraft.deckType === "vocab" ? "selected" : ""}>Vocab</option>
+                  <option value="verb_trap" ${formDraft.deckType === "verb_trap" ? "selected" : ""}>Verb Trap</option>
+                  <option value="case_practice" ${formDraft.deckType === "case_practice" ? "selected" : ""}>Case Practice</option>
+                </select>
+              </div>
+              <div class="field-group">
+                <label class="field-label" for="f-level">Level</label>
+                <select id="f-level" class="select-ctrl">
+                  ${LEVELS.map(l => `<option value="${l}" ${formDraft.level === l ? "selected" : ""}>${l}</option>`).join("")}
+                </select>
+              </div>
+              <div class="field-group">
+                <label class="field-label" for="f-pos">POS</label>
+                <select id="f-pos" class="select-ctrl" onchange="onFormPosChange()" ${isCase ? "disabled" : ""}>
+                  ${isCase
+                    ? `<option value="case_practice" selected>Case Practice</option>`
+                    : ["verb", "noun", "adjective", "adverb", "conjunction", "phrase"].map(p =>
+                        `<option value="${p}" ${formDraft.pos === p ? "selected" : ""}>${POS_LABELS[p]}</option>`
+                      ).join("")}
+                </select>
+              </div>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label" for="f-word">${isCase ? "Challenge Sentence (use ___ for blank)" : "German Word / Expression"}</label>
+              <input id="f-word" class="input-ctrl" type="text" value="${esc(formDraft.word)}" placeholder="${isCase ? "Ich warte ___ (der Zug)." : "e.g. verzichten auf"}" required />
+            </div>
+
+            <div class="field-group">
+              <label class="field-label" for="f-english">English Meaning</label>
+              <input id="f-english" class="input-ctrl" type="text" value="${esc(formDraft.english)}" placeholder="${isCase ? "I am waiting for the train." : "e.g. to do without / give up"}" required />
+            </div>
+
+            ${isNoun ? `
+              <div class="form-grid-2">
+                <div class="field-group">
+                  <label class="field-label" for="f-article">Article</label>
+                  <select id="f-article" class="select-ctrl">
+                    <option value="der" ${formDraft.article === "der" ? "selected" : ""}>der (Masc)</option>
+                    <option value="die" ${formDraft.article === "die" ? "selected" : ""}>die (Fem)</option>
+                    <option value="das" ${formDraft.article === "das" ? "selected" : ""}>das (Neut)</option>
+                  </select>
+                </div>
+                <div class="field-group">
+                  <label class="field-label" for="f-plural">Plural</label>
+                  <input id="f-plural" class="input-ctrl" type="text" value="${esc(formDraft.plural)}" placeholder="e.g. die Entscheidungen" />
+                </div>
+              </div>
+            ` : ""}
+
+            ${isCase ? `
+              <div class="form-grid-2">
+                <div class="field-group">
+                  <label class="field-label" for="f-answer">Missing Answer</label>
+                  <input id="f-answer" class="input-ctrl" type="text" value="${esc(formDraft.answer)}" placeholder="e.g. auf den Zug" />
+                </div>
+                <div class="field-group">
+                  <label class="field-label" for="f-promptHint">Prompt Hint Badge</label>
+                  <input id="f-promptHint" class="input-ctrl" type="text" value="${esc(formDraft.promptHint)}" placeholder="Preposition + Case" />
+                </div>
+              </div>
+              <div class="field-group">
+                <label class="field-label" for="f-fullSentence">Full Corrected German Sentence</label>
+                <input id="f-fullSentence" class="input-ctrl" type="text" value="${esc(formDraft.fullSentence)}" placeholder="Ich warte auf den Zug." />
+              </div>
+            ` : ""}
+
+            ${isVerb ? `
+              <label class="check-row">
+                <input id="f-irregular" type="checkbox" ${formDraft.isIrregular ? "checked" : ""} />
+                <span>Irregular / Stem-Changing Verb</span>
+              </label>
+              <div class="form-grid-2">
+                <div class="field-group">
+                  <label class="field-label" for="f-praesens">Präsens (er/sie/es)</label>
+                  <input id="f-praesens" class="input-ctrl" type="text" value="${esc(formDraft.praesens)}" placeholder="er empfiehlt" />
+                </div>
+                <div class="field-group">
+                  <label class="field-label" for="f-praeteritum">Präteritum</label>
+                  <input id="f-praeteritum" class="input-ctrl" type="text" value="${esc(formDraft.praeteritum)}" placeholder="er empfahl" />
+                </div>
+              </div>
+              <div class="form-grid-2">
+                <div class="field-group">
+                  <label class="field-label" for="f-perfekt">Perfekt (hat/ist)</label>
+                  <input id="f-perfekt" class="input-ctrl" type="text" value="${esc(formDraft.perfekt)}" placeholder="hat empfohlen" />
+                </div>
+                <div class="field-group">
+                  <label class="field-label" for="f-stemChange">Stem Change (optional)</label>
+                  <input id="f-stemChange" class="input-ctrl" type="text" value="${esc(formDraft.stemChange)}" placeholder="e → ie" />
+                </div>
+              </div>
+            ` : ""}
+
+            <div class="field-group">
+              <label class="field-label" for="f-valency">Valency / Case Rule (optional)</label>
+              <input id="f-valency" class="input-ctrl" type="text" value="${esc(formDraft.valency)}" placeholder="e.g. auf + Akkusativ · + Dativ" />
+            </div>
+
+            <div class="field-group">
+              <label class="field-label" for="f-trapNote">Why English Tricks You / Note (optional)</label>
+              <textarea id="f-trapNote" class="textarea-ctrl" placeholder="Explain preposition traps or English false-friend pitfalls…">${esc(formDraft.trapNote)}</textarea>
+            </div>
+
+            <div style="display:flex;flex-direction:column;gap:8px;">
+              <div class="section-head">
+                <span class="field-label">Example Sentences</span>
+                <button type="button" class="tiny-pill-btn reveal" onclick="addExampleFormRow()">+ Add Example</button>
+              </div>
+              <div style="font-size:11px;color:var(--text-muted);line-height:1.4;">
+                Tip: Wrap prepositions/articles in <code>[[double brackets]]</code> (e.g. <code>Ich warte [[auf den]] Bus.</code>) to create tap-to-reveal cloze blanks.
+              </div>
+              ${formDraft.examples.map((ex, idx) => `
+                <div class="ex-form-row">
+                  <div class="ex-form-head">
+                    <span>Example ${idx + 1}</span>
+                    ${formDraft.examples.length > 1 ? `<button type="button" style="color:var(--rose);font-size:10.5px;font-weight:800;" onclick="removeExampleFormRow(${idx})">Remove</button>` : ""}
+                  </div>
+                  <input id="f-ex-de-${idx}" class="input-ctrl" type="text" value="${esc(ex.de)}" placeholder="German sentence (optional [[cloze]])" />
+                  <input id="f-ex-en-${idx}" class="input-ctrl" type="text" value="${esc(ex.en)}" placeholder="English translation" />
+                </div>
+              `).join("")}
+            </div>
+
+            <div id="form-feedback"></div>
+
+            <div style="display:flex;gap:8px;">
+              ${state.editingCardId ? `<button type="button" class="btn-tone btn-ghost" style="flex:1;" onclick="cancelEditCard()">Cancel</button>` : ""}
+              <button type="submit" class="btn-primary-full" style="flex:2;">${state.editingCardId ? "Save Changes" : "Save Card to Deck"}</button>
+            </div>
+          </form>
+        `;
+        return;
+      }
+
+      /* TAB 2: BROWSE & SEARCH */
+      if (state.modalTab === "browse") {
+        body.innerHTML = `
+          <input type="search" class="input-ctrl" value="${esc(state.browseSearch)}" oninput="onBrowseSearch(this.value)" placeholder="Search German, English, A1–B2, verb_trap, valency…" />
+          <div id="browse-list-host" class="browse-list"></div>
+        `;
+        renderBrowseListOnly();
+        return;
+      }
+
+      /* TAB 3: IMPORT / EXPORT */
+      if (state.modalTab === "io") {
+        const schemaPreview = JSON.stringify([DEFAULT_CARDS[14], DEFAULT_CARDS[26]], null, 2);
+        window.__wfSchemaCopy = schemaPreview;
+
+        body.innerHTML = `
+          <label class="file-drop">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+            </svg>
+            <span>Upload .json File from Phone / PC</span>
+            <input type="file" accept=".json,application/json" onchange="handleJsonFileUpload(event)" style="display:none;" />
+          </label>
+
+          <div class="field-group">
+            <label class="field-label" for="io-textarea">Paste JSON Array [...] or {"cards": [...]}</label>
+            <textarea id="io-textarea" class="textarea-ctrl textarea-mono" placeholder='Paste WortFlow JSON cards here…'></textarea>
+          </div>
+
+          <div id="io-feedback"></div>
+
+          <div class="btn-row-2">
+            <button type="button" class="btn-tone btn-cyan" onclick="importJsonDeck(false)">Merge by ID</button>
+            <button type="button" class="btn-tone btn-violet" onclick="importJsonDeck(true)">Replace All</button>
+          </div>
+
+          <div class="btn-row-2">
+            <button type="button" class="btn-tone btn-emerald" onclick="downloadDeckJson()">Download Deck JSON</button>
+            <button type="button" class="btn-tone btn-ghost" onclick="copyText(JSON.stringify(state.cards, null, 2), 'Copied full deck JSON!')">Copy Deck JSON</button>
+          </div>
+
+          <details class="schema-details">
+            <summary>Exact JSON Schema Preview</summary>
+            <div style="margin-top:8px;display:flex;justify-content:flex-end;">
+              <button type="button" class="tiny-pill-btn reveal" onclick="copyText(window.__wfSchemaCopy, 'Copied schema example!')">Copy Schema</button>
+            </div>
+            <pre class="code-block">${esc(schemaPreview)}</pre>
+          </details>
+
+          <button type="button" class="btn-tone ${state.armedResetProgress ? "btn-rose" : "btn-ghost"}" style="${state.armedResetProgress ? "" : "color:var(--rose);"}" onclick="handleResetProgress()">
+            ${state.armedResetProgress ? "Tap Again to Confirm Resetting Progress" : "Reset Progress, Streaks & Hard Flags"}
+          </button>
+
+          <button type="button" class="btn-tone ${state.armedRestoreDefaults ? "btn-amber" : "btn-ghost"}" onclick="handleRestoreDefaultDeck()">
+            ${state.armedRestoreDefaults ? "Tap Again to Restore 36 Default Cards" : "Restore Default 36-Card Deck"}
+          </button>
+        `;
+        return;
+      }
+
+      /* TAB 4: VOICE & OFFLINE */
+      const voices = refreshGermanVoices();
+      const activeVoice = getSelectedGermanVoice();
+
+      body.innerHTML = `
+        <div class="section-box">
+          <div class="section-head">
+            <span class="section-label">German Speech Voice (de-DE)</span>
+            <span class="pill ${activeVoice ? "pill-emerald" : "pill-amber"}">${activeVoice ? (activeVoice.localService ? "Offline Ready" : "System Voice") : "No de-DE Found"}</span>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label" for="voice-select">Select Voice</label>
+            <select id="voice-select" class="select-ctrl" onchange="onVoiceSelectChange(this.value)">
+              <option value="">Auto-select best de-DE voice</option>
+              ${voices.map(v => `
+                <option value="${esc(v.name)}" ${state.preferredVoiceName === v.name ? "selected" : ""}>
+                  ${esc(v.name)} (${esc(v.lang)})${v.localService ? " · Local" : ""}
+                </option>
+              `).join("")}
+            </select>
+          </div>
+
+          <button type="button" class="btn-tone btn-cyan" data-audio-btn="voice-test" onclick="speakDE('Übung macht den Meister. Ich warte auf den Zug.', 'voice-test', 1.0, event)">
+            ${speakerSvg(15)}
+            <span>Test German Voice</span>
+          </button>
+        </div>
+
+        <div class="section-box">
+          <span class="section-label">Offline Audio on Android (Airplane Mode)</span>
+          <p style="margin:0;font-size:12.5px;line-height:1.5;color:var(--text-sub);">
+            To keep pronunciation working with zero signal:<br/>
+            <strong>Settings → Accessibility → Text-to-speech output → gear icon → Install voice data → German (Germany)</strong>.
+          </p>
+          <p style="margin:0;font-size:11.5px;line-height:1.45;color:var(--text-muted);">
+            On iPhone/iPad: <strong>Settings → Accessibility → Spoken Content → Voices → German</strong>.
+          </p>
+        </div>
+
+        <div class="section-box">
+          <span class="section-label">Desktop Keyboard Shortcuts</span>
+          <table class="kbd-table">
+            <tr><td><span class="kbd-key">Space</span> / <span class="kbd-key">Enter</span></td><td style="color:var(--text-sub);">Show Answer (flip card)</td></tr>
+            <tr><td><span class="kbd-key">1</span> · <span class="kbd-key">2</span> · <span class="kbd-key">3</span></td><td style="color:var(--text-sub);">Rate Again · Good · Easy</td></tr>
+            <tr><td><span class="kbd-key">R</span></td><td style="color:var(--text-sub);">Replay German audio (1.0x)</td></tr>
+            <tr><td><span class="kbd-key">S</span></td><td style="color:var(--text-sub);">Play slow audio (0.7x)</td></tr>
+            <tr><td><span class="kbd-key">H</span></td><td style="color:var(--text-sub);">Toggle 🔥 Hard flag on card</td></tr>
+          </table>
+        </div>
+      `;
+    }
+
+    /* =========================================================================
+       9. DESKTOP KEYBOARD SHORTCUTS (AUTO-DISABLED IN INPUTS / MODAL)
+       ========================================================================= */
+    document.addEventListener("keydown", (e) => {
+      const modalOpen = !document.getElementById("deck-modal").classList.contains("hidden");
+      if (modalOpen) {
+        if (e.key === "Escape") closeModal();
+        return;
+      }
+
+      const tag = e.target && e.target.tagName ? e.target.tagName.toUpperCase() : "";
+      if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || (e.target && e.target.isContentEditable)) {
+        return;
+      }
+
+      const card = state.queue[0];
+      if (!card) return;
+
+      const key = e.key.toLowerCase();
+      if ((e.code === "Space" || e.key === "Enter") && !state.isRevealed) {
+        e.preventDefault();
+        flipCard();
+      } else if (state.isRevealed && (key === "1" || key === "2" || key === "3")) {
+        e.preventDefault();
+        if (key === "1") rateCard("again");
+        if (key === "2") rateCard("good");
+        if (key === "3") rateCard("easy");
+      } else if (key === "r" || key === "s") {
+        e.preventDefault();
+        const rate = key === "s" ? 0.7 : 1.0;
+        if (card.deckType === "case_practice") {
+          if (state.isRevealed) {
+            speakDE(card.fullSentence || card.word, rate < 1 ? "back-slow" : "back-1x", rate);
+          }
+        } else if (state.isRevealed) {
+          const phrase = card.pos === "noun" && card.article ? `${card.article} ${card.word}` : card.word;
+          speakDE(phrase, rate < 1 ? "back-slow" : "back-1x", rate);
+        } else if (state.currentPromptMode === "de_en" || state.currentPromptMode === "listen") {
+          const phrase = state.currentPromptMode === "listen" && card.pos === "noun" && card.article
+            ? `${card.article} ${card.word}` : card.word;
+          const btnId = state.currentPromptMode === "listen"
+            ? (rate < 1 ? "listen-slow" : "listen-hero")
+            : (rate < 1 ? "front-slow" : "front-1x");
+          speakDE(phrase, btnId, rate);
+        }
+      } else if (key === "h") {
+        e.preventDefault();
+        toggleHardFlag(card.id);
+      }
+    });
+
+    // Boot application
+    loadState();
+    resetFormDraft(null);
+    buildQueue(false, false);
+  </script>
+</body>
+</html>
