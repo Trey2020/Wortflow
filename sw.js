@@ -1,4 +1,4 @@
-const CACHE_NAME = 'wortflow-v1';
+const CACHE_NAME = 'wortflow-v2';
 const ASSETS = ['./', './index.html', './manifest.json'];
 
 self.addEventListener('install', (e) => {
